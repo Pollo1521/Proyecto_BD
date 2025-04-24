@@ -13,10 +13,10 @@ namespace Proyecto_BD.Models
         [Required]
         public Paciente Paciente { get; set; }
 
-        //public int ID_Medico { get; set; }
-        //[ForeignKey("ID_Medico")]
-        //[Required]
-        //public Medico Medico { get; set; }
+        public int ID_Medico { get; set; }
+        [ForeignKey("ID_Medico")]
+        [Required]
+        public Medico Medico { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
@@ -37,5 +37,10 @@ namespace Proyecto_BD.Models
         [ForeignKey("ID_Estatus_Cita")]
         [Required]
         public EstatusCita EstatusCita { get; set; }
+
+        //Llave
+
+        public ICollection<Receta> Recetas { get; set; }
+        public ICollection<Pago> Pagos { get; set; }
     }
 }

@@ -51,7 +51,8 @@ namespace Proyecto_BD.Models
         public bool Estado_Usuario { get; set; }
 
         //Llaves
-
         public ICollection<Paciente> Paciente { get; set; }
+        public ICollection<Medico> Medico { get; set; }
+        public ICollection<Recepcionista> Recepcionista { get; set; }
     }
 }

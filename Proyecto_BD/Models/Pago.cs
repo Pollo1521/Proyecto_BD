@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+
 namespace Proyecto_BD.Models
 {
-    public class Receta
+    public class Pago
     {
         [Key]
-        public int ID_Receta { get; set; }
+        public int ID_Pago { get; set; }
 
         public int ID_Cita { get; set; }
         [ForeignKey("ID_Cita")]
@@ -14,10 +15,9 @@ namespace Proyecto_BD.Models
         public Cita Cita { get; set; }
 
         [Required]
-        public string Diagnostico { get; set; }
+        public bool Estado_Pago { get; set; }
 
-        //Llave
-
-        public ICollection<Tratamiento> Tratamiento { get; set; }
+        [Required]
+        public string ComprobantePago { get; set; }
     }
 }
