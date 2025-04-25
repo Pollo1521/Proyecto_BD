@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Proyecto_BD.Migrations
 {
     /// <inheritdoc />
-    public partial class inicial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -58,7 +58,6 @@ namespace Proyecto_BD.Migrations
                 {
                     ID_Jornada = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Tipo_Usuario = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Hora_Entrada = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Hora_Salida = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -157,7 +156,7 @@ namespace Proyecto_BD.Migrations
                     ID_Medico = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ID_Usuario = table.Column<int>(type: "int", nullable: false),
-                    CURP = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Cedula = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ID_Especialidad = table.Column<int>(type: "int", nullable: false),
                     ID_Consultorio = table.Column<int>(type: "int", nullable: false),
                     ID_Jornada = table.Column<int>(type: "int", nullable: false)

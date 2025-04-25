@@ -6,31 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
-using Proyecto_BD.Utilities;
 
 namespace Proyecto_BD.Controllers
 {
-    public class TipoUsuariosController : Controller
+    public class JornadasController : Controller
     {
         private readonly ContextoBaseDatos _context;
-        
-        //CORREOOOOOOOOOOOOO
-        private readonly CorreoElectronico _correoElectronico;
-        //CORREOOOOOOOOOOOOO
-        public TipoUsuariosController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
+
+        public JornadasController(ContextoBaseDatos context)
         {
-            //CORREOOOOOOOOOOOOO
             _context = context;
-            _correoElectronico = correoElectronico;
         }
 
-        // GET: TipoUsuarios
+        // GET: Jornadas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.TiposUsuario.ToListAsync());
+            return View(await _context.Jornada.ToListAsync());
         }
 
-        // GET: TipoUsuarios/Details/5
+        // GET: Jornadas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,39 +32,39 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var jornada = await _context.Jornada
+                .FirstOrDefaultAsync(m => m.ID_Jornada == id);
+            if (jornada == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(jornada);
         }
 
-        // GET: TipoUsuarios/Create
+        // GET: Jornadas/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: TipoUsuarios/Create
+        // POST: Jornadas/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Create([Bind("ID_Jornada,Hora_Entrada,Hora_Salida")] Jornada jornada)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                _context.Add(tipoUsuario);
+                _context.Add(jornada);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(tipoUsuario);
+            return View(jornada);
         }
 
-        // GET: TipoUsuarios/Edit/5
+        // GET: Jornadas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,36 +72,36 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario == null)
+            var jornada = await _context.Jornada.FindAsync(id);
+            if (jornada == null)
             {
                 return NotFound();
             }
-            return View(tipoUsuario);
+            return View(jornada);
         }
 
-        // POST: TipoUsuarios/Edit/5
+        // POST: Jornadas/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Jornada,Hora_Entrada,Hora_Salida")] Jornada jornada)
         {
-            if (id != tipoUsuario.ID_Tipo_Usuario)
+            if (id != jornada.ID_Jornada)
             {
                 return NotFound();
             }
 
-            if (tipoUsuario.Tipo_Usuario != "")
+            if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(tipoUsuario);
+                    _context.Update(jornada);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TipoUsuarioExists(tipoUsuario.ID_Tipo_Usuario))
+                    if (!JornadaExists(jornada.ID_Jornada))
                     {
                         return NotFound();
                     }
@@ -118,13 +112,10 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-
-            //await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "dasdsa", "fsdfsd");
-
-            return View(tipoUsuario);
+            return View(jornada);
         }
 
-        // GET: TipoUsuarios/Delete/5
+        // GET: Jornadas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -132,34 +123,34 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var jornada = await _context.Jornada
+                .FirstOrDefaultAsync(m => m.ID_Jornada == id);
+            if (jornada == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(jornada);
         }
 
-        // POST: TipoUsuarios/Delete/5
+        // POST: Jornadas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario != null)
+            var jornada = await _context.Jornada.FindAsync(id);
+            if (jornada != null)
             {
-                _context.TiposUsuario.Remove(tipoUsuario);
+                _context.Jornada.Remove(jornada);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TipoUsuarioExists(int id)
+        private bool JornadaExists(int id)
         {
-            return _context.TiposUsuario.Any(e => e.ID_Tipo_Usuario == id);
+            return _context.Jornada.Any(e => e.ID_Jornada == id);
         }
     }
 }

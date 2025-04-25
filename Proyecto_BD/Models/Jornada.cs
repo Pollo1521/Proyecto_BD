@@ -8,10 +8,6 @@ namespace Proyecto_BD.Models
         [Key]
         public int ID_Jornada { get; set; }
 
-        [Display(Name = "Tipo de Usuario")]
-        [Required]
-        public required string Tipo_Usuario { get; set; }
-
         [Required]
         [DataType(DataType.Time)]
         [Display(Name = "Hora de Entrada")]

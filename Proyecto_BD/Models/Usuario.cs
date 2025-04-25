@@ -43,7 +43,6 @@ namespace Proyecto_BD.Models
 
         public int ID_Tipo_Usuario { get; set; }
         [ForeignKey("ID_Tipo_Usuario")]
-        [Required]
         public TipoUsuario TipoUsuario { get; set; }
 
         [Required]

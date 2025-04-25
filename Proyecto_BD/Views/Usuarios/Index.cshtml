@@ -1,0 +1,89 @@
+﻿@model IEnumerable<Proyecto_BD.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Apellido_Paterno)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Apellido_Materno)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Correo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CURP)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fecha_Nacimiento)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Password)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fecha_Registro)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TipoUsuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado_Usuario)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Apellido_Paterno)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Apellido_Materno)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Correo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CURP)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fecha_Nacimiento)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Password)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fecha_Registro)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TipoUsuario.Tipo_Usuario)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado_Usuario)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ID_Usuario">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ID_Usuario">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ID_Usuario">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

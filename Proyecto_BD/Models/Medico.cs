@@ -14,7 +14,7 @@ namespace Proyecto_BD.Models
         public Usuario Usuario { get; set; }
 
         [Required]
-        public string CURP { get; set; }
+        public string Cedula { get; set; }
 
         public int ID_Especialidad { get; set; }
         [ForeignKey("ID_Especialidad")]

@@ -151,10 +151,6 @@ namespace Proyecto_BD.Migrations
                     b.Property<DateTime>("Hora_Salida")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Tipo_Usuario")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("ID_Jornada");
 
                     b.ToTable("Jornada");
@@ -191,7 +187,7 @@ namespace Proyecto_BD.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID_Medico"));
 
-                    b.Property<string>("CURP")
+                    b.Property<string>("Cedula")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
