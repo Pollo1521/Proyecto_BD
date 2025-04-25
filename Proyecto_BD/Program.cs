@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Proyecto_BD.Models;
+using Proyecto_BD.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ContextoBaseDatos>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<CorreoElectronico>();
 
 var app = builder.Build();
 

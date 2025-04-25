@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net.Sockets;
+using Proyecto_BD.Models;
 
 namespace Proyecto_BD.Controllers
 {

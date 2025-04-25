@@ -10,7 +10,6 @@ namespace Proyecto_BD.Models
 
         public int ID_Cita { get; set; }
         [ForeignKey("ID_Cita")]
-        [Required]
         public Cita Cita { get; set; }
 
         [Required]

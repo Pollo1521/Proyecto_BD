@@ -13,10 +13,13 @@ namespace Proyecto_BD.Models
         [Display(Name = "Fecha de Venta")]
         public DateTime Fecha_Venta { get; set; }
 
-        [Required]
         public int ID_Recepcionista { get; set; }
         [ForeignKey("ID_Recepcionista")]
         [Required]
         public Recepcionista Recepcionista { get; set; }
+
+        //Llave
+
+        ICollection<Ticket> Ticket { get; set; }
     }
 }

@@ -11,10 +11,8 @@ namespace Proyecto_BD.Models
         [Required]
         public int ID_Usuario { get; set; }
         [ForeignKey("ID_Usuario")]
-        [Required]
         public Usuario Usuario { get; set; }
 
-        [Required]
         public int ID_Jornada { get; set; }
         [ForeignKey("ID_Jornada")]
         [Required]

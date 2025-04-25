@@ -41,7 +41,6 @@ namespace Proyecto_BD.Models
         [Display(Name = "Fecha de Registro")]
         public DateTime Fecha_Registro { get; set; }
 
-        [Required]
         public int ID_Tipo_Usuario { get; set; }
         [ForeignKey("ID_Tipo_Usuario")]
         [Required]

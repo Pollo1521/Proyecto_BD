@@ -10,7 +10,7 @@ namespace Proyecto_BD.Models
 
         [Display(Name = "Tipo de Usuario")]
         [Required]
-        public required string Tipo_Usuario { get; set; }
+        public string Tipo_Usuario { get; set; }
 
         // LLaves
         public ICollection<Usuario> Usuarios { get; set; }

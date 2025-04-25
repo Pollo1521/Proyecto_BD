@@ -10,12 +10,10 @@ namespace Proyecto_BD.Models
 
         public int ID_Paciente { get; set; }
         [ForeignKey("ID_Paciente")]
-        [Required]
         public Paciente Paciente { get; set; }
 
         public int ID_Medico { get; set; }
         [ForeignKey("ID_Medico")]
-        [Required]
         public Medico Medico { get; set; }
 
         [Required]
@@ -35,7 +33,6 @@ namespace Proyecto_BD.Models
 
         public int ID_Estatus_Cita { get; set; }
         [ForeignKey("ID_Estatus_Cita")]
-        [Required]
         public EstatusCita EstatusCita { get; set; }
 
         //Llave

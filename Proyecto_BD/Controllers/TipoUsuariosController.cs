@@ -6,16 +6,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
+using Proyecto_BD.Utilities;
 
 namespace Proyecto_BD.Controllers
 {
     public class TipoUsuariosController : Controller
     {
         private readonly ContextoBaseDatos _context;
-
-        public TipoUsuariosController(ContextoBaseDatos context)
+        
+        //CORREOOOOOOOOOOOOO
+        private readonly CorreoElectronico _correoElectronico;
+        //CORREOOOOOOOOOOOOO
+        public TipoUsuariosController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
         {
+            //CORREOOOOOOOOOOOOO
             _context = context;
+            _correoElectronico = correoElectronico;
         }
 
         // GET: TipoUsuarios
@@ -55,7 +61,7 @@ namespace Proyecto_BD.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 _context.Add(tipoUsuario);
                 await _context.SaveChangesAsync();
@@ -112,6 +118,9 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "dasdsa", "fsdfsd");
+
             return View(tipoUsuario);
         }
 
