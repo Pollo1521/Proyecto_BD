@@ -6,31 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
-using Proyecto_BD.Utilities;
 
 namespace Proyecto_BD.Controllers
 {
-    public class TipoUsuariosController : Controller
+    public class EstatusCitasController : Controller
     {
         private readonly ContextoBaseDatos _context;
-        
-        //CORREOOOOOOOOOOOOO
-        private readonly CorreoElectronico _correoElectronico;
-        //CORREOOOOOOOOOOOOO
-        public TipoUsuariosController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
+
+        public EstatusCitasController(ContextoBaseDatos context)
         {
-            //CORREOOOOOOOOOOOOO
             _context = context;
-            _correoElectronico = correoElectronico;
         }
 
-        // GET: TipoUsuarios
+        // GET: EstatusCitas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.TiposUsuario.ToListAsync());
+            return View(await _context.EstatusCita.ToListAsync());
         }
 
-        // GET: TipoUsuarios/Details/5
+        // GET: EstatusCitas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,39 +32,39 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var estatusCita = await _context.EstatusCita
+                .FirstOrDefaultAsync(m => m.ID_Estatus_Cita == id);
+            if (estatusCita == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(estatusCita);
         }
 
-        // GET: TipoUsuarios/Create
+        // GET: EstatusCitas/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: TipoUsuarios/Create
+        // POST: EstatusCitas/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Create([Bind("ID_Estatus_Cita,Estatus_Cita")] EstatusCita estatusCita)
         {
-            if (!ModelState.IsValid)
+            if (estatusCita.Estatus_Cita != "")
             {
-                _context.Add(tipoUsuario);
+                _context.Add(estatusCita);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(tipoUsuario);
+            return View(estatusCita);
         }
 
-        // GET: TipoUsuarios/Edit/5
+        // GET: EstatusCitas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,37 +72,36 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario == null)
+            var estatusCita = await _context.EstatusCita.FindAsync(id);
+            if (estatusCita == null)
             {
                 return NotFound();
             }
-            return View(tipoUsuario);
+            return View(estatusCita);
         }
 
-        // POST: TipoUsuarios/Edit/5
+        // POST: EstatusCitas/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Estatus_Cita,Estatus_Cita")] EstatusCita estatusCita)
         {
-            if (id != tipoUsuario.ID_Tipo_Usuario)
+            if (id != estatusCita.ID_Estatus_Cita)
             {
                 return NotFound();
             }
 
-            if (tipoUsuario.Tipo_Usuario != "")
+            if (estatusCita.Estatus_Cita != "")
             {
-                await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "Hola mi amor", "Te amo con todo mi corazon, eres el amor de mi vida");
                 try
                 {
-                    _context.Update(tipoUsuario);
+                    _context.Update(estatusCita);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TipoUsuarioExists(tipoUsuario.ID_Tipo_Usuario))
+                    if (!EstatusCitaExists(estatusCita.ID_Estatus_Cita))
                     {
                         return NotFound();
                     }
@@ -119,13 +112,10 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-
-            
-
-            return View(tipoUsuario);
+            return View(estatusCita);
         }
 
-        // GET: TipoUsuarios/Delete/5
+        // GET: EstatusCitas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,34 +123,34 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var estatusCita = await _context.EstatusCita
+                .FirstOrDefaultAsync(m => m.ID_Estatus_Cita == id);
+            if (estatusCita == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(estatusCita);
         }
 
-        // POST: TipoUsuarios/Delete/5
+        // POST: EstatusCitas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario != null)
+            var estatusCita = await _context.EstatusCita.FindAsync(id);
+            if (estatusCita != null)
             {
-                _context.TiposUsuario.Remove(tipoUsuario);
+                _context.EstatusCita.Remove(estatusCita);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TipoUsuarioExists(int id)
+        private bool EstatusCitaExists(int id)
         {
-            return _context.TiposUsuario.Any(e => e.ID_Tipo_Usuario == id);
+            return _context.EstatusCita.Any(e => e.ID_Estatus_Cita == id);
         }
     }
 }

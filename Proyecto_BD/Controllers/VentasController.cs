@@ -6,31 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
-using Proyecto_BD.Utilities;
 
 namespace Proyecto_BD.Controllers
 {
-    public class TipoUsuariosController : Controller
+    public class VentasController : Controller
     {
         private readonly ContextoBaseDatos _context;
-        
-        //CORREOOOOOOOOOOOOO
-        private readonly CorreoElectronico _correoElectronico;
-        //CORREOOOOOOOOOOOOO
-        public TipoUsuariosController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
+
+        public VentasController(ContextoBaseDatos context)
         {
-            //CORREOOOOOOOOOOOOO
             _context = context;
-            _correoElectronico = correoElectronico;
         }
 
-        // GET: TipoUsuarios
+        // GET: Ventas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.TiposUsuario.ToListAsync());
+            var contextoBaseDatos = _context.Venta.Include(v => v.Recepcionista);
+            return View(await contextoBaseDatos.ToListAsync());
         }
 
-        // GET: TipoUsuarios/Details/5
+        // GET: Ventas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,39 +33,42 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var ventas = await _context.Venta
+                .Include(v => v.Recepcionista)
+                .FirstOrDefaultAsync(m => m.ID_Ventas == id);
+            if (ventas == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(ventas);
         }
 
-        // GET: TipoUsuarios/Create
+        // GET: Ventas/Create
         public IActionResult Create()
         {
+            ViewData["ID_Recepcionista"] = new SelectList(_context.Recepcionista, "ID_Recepcionista", "ID_Recepcionista");
             return View();
         }
 
-        // POST: TipoUsuarios/Create
+        // POST: Ventas/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Create([Bind("ID_Ventas,Fecha_Venta,ID_Recepcionista")] Ventas ventas)
         {
-            if (!ModelState.IsValid)
+            if (ventas.ID_Recepcionista != 0)
             {
-                _context.Add(tipoUsuario);
+                _context.Add(ventas);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(tipoUsuario);
+            ViewData["ID_Recepcionista"] = new SelectList(_context.Recepcionista, "ID_Recepcionista", "ID_Recepcionista", ventas.ID_Recepcionista);
+            return View(ventas);
         }
 
-        // GET: TipoUsuarios/Edit/5
+        // GET: Ventas/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,37 +76,37 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario == null)
+            var ventas = await _context.Venta.FindAsync(id);
+            if (ventas == null)
             {
                 return NotFound();
             }
-            return View(tipoUsuario);
+            ViewData["ID_Recepcionista"] = new SelectList(_context.Recepcionista, "ID_Recepcionista", "ID_Recepcionista", ventas.ID_Recepcionista);
+            return View(ventas);
         }
 
-        // POST: TipoUsuarios/Edit/5
+        // POST: Ventas/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Ventas,Fecha_Venta,ID_Recepcionista")] Ventas ventas)
         {
-            if (id != tipoUsuario.ID_Tipo_Usuario)
+            if (id != ventas.ID_Ventas)
             {
                 return NotFound();
             }
 
-            if (tipoUsuario.Tipo_Usuario != "")
+            if (ventas.ID_Recepcionista != 0)
             {
-                await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "Hola mi amor", "Te amo con todo mi corazon, eres el amor de mi vida");
                 try
                 {
-                    _context.Update(tipoUsuario);
+                    _context.Update(ventas);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TipoUsuarioExists(tipoUsuario.ID_Tipo_Usuario))
+                    if (!VentasExists(ventas.ID_Ventas))
                     {
                         return NotFound();
                     }
@@ -119,13 +117,11 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-
-            
-
-            return View(tipoUsuario);
+            ViewData["ID_Recepcionista"] = new SelectList(_context.Recepcionista, "ID_Recepcionista", "ID_Recepcionista", ventas.ID_Recepcionista);
+            return View(ventas);
         }
 
-        // GET: TipoUsuarios/Delete/5
+        // GET: Ventas/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,34 +129,35 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var ventas = await _context.Venta
+                .Include(v => v.Recepcionista)
+                .FirstOrDefaultAsync(m => m.ID_Ventas == id);
+            if (ventas == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(ventas);
         }
 
-        // POST: TipoUsuarios/Delete/5
+        // POST: Ventas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario != null)
+            var ventas = await _context.Venta.FindAsync(id);
+            if (ventas != null)
             {
-                _context.TiposUsuario.Remove(tipoUsuario);
+                _context.Venta.Remove(ventas);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TipoUsuarioExists(int id)
+        private bool VentasExists(int id)
         {
-            return _context.TiposUsuario.Any(e => e.ID_Tipo_Usuario == id);
+            return _context.Venta.Any(e => e.ID_Ventas == id);
         }
     }
 }

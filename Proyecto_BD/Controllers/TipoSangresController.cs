@@ -6,31 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
-using Proyecto_BD.Utilities;
 
 namespace Proyecto_BD.Controllers
 {
-    public class TipoUsuariosController : Controller
+    public class TipoSangresController : Controller
     {
         private readonly ContextoBaseDatos _context;
-        
-        //CORREOOOOOOOOOOOOO
-        private readonly CorreoElectronico _correoElectronico;
-        //CORREOOOOOOOOOOOOO
-        public TipoUsuariosController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
+
+        public TipoSangresController(ContextoBaseDatos context)
         {
-            //CORREOOOOOOOOOOOOO
             _context = context;
-            _correoElectronico = correoElectronico;
         }
 
-        // GET: TipoUsuarios
+        // GET: TipoSangres
         public async Task<IActionResult> Index()
         {
-            return View(await _context.TiposUsuario.ToListAsync());
+            return View(await _context.TipoSangre.ToListAsync());
         }
 
-        // GET: TipoUsuarios/Details/5
+        // GET: TipoSangres/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,39 +32,39 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var tipoSangre = await _context.TipoSangre
+                .FirstOrDefaultAsync(m => m.ID_Tipo_Sangre == id);
+            if (tipoSangre == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(tipoSangre);
         }
 
-        // GET: TipoUsuarios/Create
+        // GET: TipoSangres/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: TipoUsuarios/Create
+        // POST: TipoSangres/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Create([Bind("ID_Tipo_Sangre,Tipo_Sangre")] TipoSangre tipoSangre)
         {
-            if (!ModelState.IsValid)
+            if (tipoSangre.Tipo_Sangre != "")
             {
-                _context.Add(tipoUsuario);
+                _context.Add(tipoSangre);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(tipoUsuario);
+            return View(tipoSangre);
         }
 
-        // GET: TipoUsuarios/Edit/5
+        // GET: TipoSangres/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -78,37 +72,36 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario == null)
+            var tipoSangre = await _context.TipoSangre.FindAsync(id);
+            if (tipoSangre == null)
             {
                 return NotFound();
             }
-            return View(tipoUsuario);
+            return View(tipoSangre);
         }
 
-        // POST: TipoUsuarios/Edit/5
+        // POST: TipoSangres/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Tipo_Usuario,Tipo_Usuario")] TipoUsuario tipoUsuario)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Tipo_Sangre,Tipo_Sangre")] TipoSangre tipoSangre)
         {
-            if (id != tipoUsuario.ID_Tipo_Usuario)
+            if (id != tipoSangre.ID_Tipo_Sangre)
             {
                 return NotFound();
             }
 
-            if (tipoUsuario.Tipo_Usuario != "")
+            if (tipoSangre.Tipo_Sangre != "")
             {
-                await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "Hola mi amor", "Te amo con todo mi corazon, eres el amor de mi vida");
                 try
                 {
-                    _context.Update(tipoUsuario);
+                    _context.Update(tipoSangre);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TipoUsuarioExists(tipoUsuario.ID_Tipo_Usuario))
+                    if (!TipoSangreExists(tipoSangre.ID_Tipo_Sangre))
                     {
                         return NotFound();
                     }
@@ -119,13 +112,10 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-
-            
-
-            return View(tipoUsuario);
+            return View(tipoSangre);
         }
 
-        // GET: TipoUsuarios/Delete/5
+        // GET: TipoSangres/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,34 +123,34 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var tipoUsuario = await _context.TiposUsuario
-                .FirstOrDefaultAsync(m => m.ID_Tipo_Usuario == id);
-            if (tipoUsuario == null)
+            var tipoSangre = await _context.TipoSangre
+                .FirstOrDefaultAsync(m => m.ID_Tipo_Sangre == id);
+            if (tipoSangre == null)
             {
                 return NotFound();
             }
 
-            return View(tipoUsuario);
+            return View(tipoSangre);
         }
 
-        // POST: TipoUsuarios/Delete/5
+        // POST: TipoSangres/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tipoUsuario = await _context.TiposUsuario.FindAsync(id);
-            if (tipoUsuario != null)
+            var tipoSangre = await _context.TipoSangre.FindAsync(id);
+            if (tipoSangre != null)
             {
-                _context.TiposUsuario.Remove(tipoUsuario);
+                _context.TipoSangre.Remove(tipoSangre);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TipoUsuarioExists(int id)
+        private bool TipoSangreExists(int id)
         {
-            return _context.TiposUsuario.Any(e => e.ID_Tipo_Usuario == id);
+            return _context.TipoSangre.Any(e => e.ID_Tipo_Sangre == id);
         }
     }
 }
