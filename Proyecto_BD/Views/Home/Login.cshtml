@@ -1,0 +1,33 @@
+﻿@{
+    Layout = null;
+    <link rel="stylesheet" href="~/css/Login.css" />
+}
+
+<div class="login">
+    <div class="login-sistge">
+        <hr color="white" size=10 />
+        <br />
+        <h3>No estas registrado? <a asp-action="RegistrarUsuarioAlumno" style="color:white; text-decoration: none;">Registrate Aqui</a></h3>
+        <h3>Olvidaste tu contraseña? <a asp-action="RecuperarPassword" style="color:white; text-decoration: none;">Recuperala Aqui</a></h3>
+    </div>
+    <div class="login-datos">
+        <h1>Inciar Sesion</h1>
+        @if (ViewBag.Error)
+        {
+            <div class="alert alert-warning" role="alert">
+                <p style="color: red; font-size:large;">Usuario y/o Contraseña Incorrectos</p>
+            </div>
+        }
+        <form class="form" asp-action="Login" method="post">
+            <fieldset class="email" style="border: none; padding: 0; margin: 20px 0; position: relative;">
+                <input type="email" class="form-control" name="Correo" required placeholder="Correo Electrónico" style="width: 100%; height: 48px; color: hsl(0, 0, 20); padding: 15px 40px 15px 15px; border-radius: 5px; font-size: 14px;
+                                                        outline: none!important; border: 1px solid hsla(0, 0, 0, 0.3); box-shadow: inset 0 1px 4px hsla(0, 0, 0, 0.2); vertical-align: top;" />
+            </fieldset>
+            <fieldset class="password" style="border: none; padding: 0; margin: 20px 0; position: relative;">
+                <input type="password" class="form-control" name="Password" required placeholder="Contraseña" style="width: 100%; height: 48px; color: hsl(0, 0, 20); padding: 15px 40px 15px 15px; border-radius: 5px; font-size: 14px;
+                                                        outline: none!important; border: 1px solid hsla(0, 0, 0, 0.3); box-shadow: inset 0 1px 4px hsla(0, 0, 0, 0.2); vertical-align: top;" />
+            </fieldset>
+            <button type="submit" value="Iniciar Sesión" class="btn">Iniciar Sesión</button>
+        </form>
+    </div>
+</div>
