@@ -5,18 +5,22 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
+using Proyecto_BD.Utilities;
 
 namespace Proyecto_BD.Controllers
 {
     public class PacientesController : Controller
     {
         private readonly ContextoBaseDatos _context;
+        private readonly CorreoElectronico _correoElectronico;
 
-        public PacientesController(ContextoBaseDatos context)
+        public PacientesController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
         {
             _context = context;
+            _correoElectronico = correoElectronico;
         }
 
         // GET: Pacientes
@@ -103,13 +107,12 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            var paciente = await _context.Paciente.FindAsync(id);
+            var paciente = _context.Paciente.Include(p => p.Usuario).FirstOrDefault(p => p.ID_Paciente == id);
             if (paciente == null)
             {
                 return NotFound();
             }
             ViewData["ID_Tipo_Sangre"] = new SelectList(_context.TipoSangre, "ID_Tipo_Sangre", "Tipo_Sangre", paciente.ID_Tipo_Sangre);
-            ViewData["ID_Usuario"] = new SelectList(_context.Usuario, "ID_Usuario", "Apellido_Materno", paciente.ID_Usuario);
             return View(paciente);
         }
 
@@ -118,7 +121,8 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Paciente,ID_Usuario,ID_Tipo_Sangre,Peso,Alergia,Estatura")] Paciente paciente)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Paciente,ID_Usuario,ID_Tipo_Sangre,Peso,Alergia,Estatura")] Paciente paciente, 
+                                              string Nombre, string ApPa, string ApMa, string Correo, DateTime FechaNacimiento, string CURP)
         {
             if (id != paciente.ID_Paciente)
             {
@@ -131,6 +135,43 @@ namespace Proyecto_BD.Controllers
                 {
                     _context.Update(paciente);
                     await _context.SaveChangesAsync();
+
+                    var usuario = await _context.Usuario.FindAsync(paciente.ID_Usuario);
+
+                    if (usuario != null)
+                    {
+                        // Verifica si el correo ya existe
+                        var correoExistente = _context.Usuario.FirstOrDefault(u => u.Correo == Correo && u.ID_Usuario != usuario.ID_Usuario);
+                        if (correoExistente != null)
+                        {
+                            ViewBag.Error += string.Format("El correo ya esta registrado<br />");                            
+                            ViewData["ID_Tipo_Sangre"] = new SelectList(_context.TipoSangre, "ID_Tipo_Sangre", "Tipo_Sangre", paciente.ID_Tipo_Sangre);
+                            return View(paciente);
+                        }
+
+                        // Verifica si el correo ha cambiado
+                        if (Correo != usuario.Correo)
+                        {
+                            try
+                            {
+                                await _correoElectronico.EnviarCorreo(usuario.Correo, "Cambio de Correo", "Se ha realizado un cambio de correo");
+                            }
+                            catch (Exception ex)
+                            {
+                                ViewData["ID_Tipo_Sangre"] = new SelectList(_context.TipoSangre, "ID_Tipo_Sangre", "Tipo_Sangre", paciente.ID_Tipo_Sangre);
+                                return View(paciente);
+                            }
+                        }
+
+                        usuario.Nombre = Nombre;
+                        usuario.Apellido_Paterno = ApPa;
+                        usuario.Apellido_Materno = ApMa;
+                        usuario.Correo = Correo;
+                        usuario.Fecha_Nacimiento = FechaNacimiento;
+                        usuario.CURP = CURP;
+                        _context.Update(usuario);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -146,7 +187,6 @@ namespace Proyecto_BD.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ID_Tipo_Sangre"] = new SelectList(_context.TipoSangre, "ID_Tipo_Sangre", "Tipo_Sangre", paciente.ID_Tipo_Sangre);
-            ViewData["ID_Usuario"] = new SelectList(_context.Usuario, "ID_Usuario", "Apellido_Materno", paciente.ID_Usuario);
             return View(paciente);
         }
 

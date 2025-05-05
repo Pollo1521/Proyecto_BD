@@ -13,11 +13,32 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID_Paciente" />
+            <input type="hidden" asp-for="ID_Usuario" />
+            <span style="color:red">@Html.Raw(ViewBag.Error)</span>
             <div class="form-group">
-                <label asp-for="ID_Usuario" class="control-label"></label>
-                <select asp-for="ID_Usuario" class="form-control" asp-items="ViewBag.ID_Usuario"></select>
-                <span asp-validation-for="ID_Usuario" class="text-danger"></span>
+                <label for="Nombre" class="control-label">Nombre</label>
+                <input name="Nombre" id="Nombre" class="form-control" required value="@Model.Usuario.Nombre"/>
             </div>
+            <div class="form-group">
+                <label for="ApPa" class="control-label">Apellido Paterno</label>
+                <input name="ApPa" id="ApPa" class="form-control" required value="@Model.Usuario.Apellido_Paterno"/>
+            </div>
+            <div class="form-group">
+                <label for="ApMa" class="control-label">Apellido Materno</label>
+                <input name="ApMa" id="ApMa" class="form-control" required value="@Model.Usuario.Apellido_Materno"/>
+            </div>
+            <div class="form-group">
+                <label for="Correo" class="control-label">Correo</label>
+                <input name="Correo" id="Correo" class="form-control" required type="email" value="@Model.Usuario.Correo"/>
+            </div>
+            <div class="form-group">
+                <label for="FechaNacimiento" class="control-label">FechaNacimiento</label>
+                <input name="FechaNacimiento" id="FechaNacimiento" class="form-control" required type="date"/>
+            </div>
+            <div class="form-group">
+                <label for="CURP" class="control-label">CURP</label>
+                <input name="CURP" id="CURP" class="form-control" required minlength="18" maxlength="18" value="@Model.Usuario.CURP"/>
+            </div>            
             <div class="form-group">
                 <label asp-for="ID_Tipo_Sangre" class="control-label"></label>
                 <select asp-for="ID_Tipo_Sangre" class="form-control" asp-items="ViewBag.ID_Tipo_Sangre"></select>
