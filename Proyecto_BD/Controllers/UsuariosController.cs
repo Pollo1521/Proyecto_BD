@@ -61,7 +61,10 @@ namespace Proyecto_BD.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID_Usuario,Nombre,Apellido_Paterno,Apellido_Materno,Correo,CURP,Fecha_Nacimiento,Password,Fecha_Registro,ID_Tipo_Usuario,Estado_Usuario")] Usuario usuario)
         {
-            bool valido = false;
+            //Ajustando Datos
+            usuario.Password = Encriptar.EncriptarPassword(usuario.Password);
+            usuario.Fecha_Registro = DateTime.Now;
+            usuario.Estado_Usuario = true;
 
             if (usuario.Nombre != "" && usuario.Apellido_Paterno != "" && usuario.Apellido_Materno != "" && usuario.Correo != "" && usuario.CURP != "" && usuario.Password != "")
             {
@@ -117,6 +120,7 @@ namespace Proyecto_BD.Controllers
             {
                 try
                 {
+                    //usuario.Password = Encriptar.EncriptarPassword(usuario.Password);
                     _context.Update(usuario);
                     await _context.SaveChangesAsync();
                 }

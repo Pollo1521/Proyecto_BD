@@ -25,11 +25,11 @@ namespace Proyecto_BD.Models
         public DbSet<Recepcionista> Recepcionista { get; set; }
         public DbSet<Receta> Receta { get; set; }
         public DbSet<Servicio> Servicio { get; set; }
-        public DbSet<Ticket> Ticket { get; set; }
         public DbSet<TipoSangre> TipoSangre { get; set; }
         public DbSet<Tratamiento> Tratamiento { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Ventas> Venta { get; set; }
+        public DbSet<Ticket> Ticket { get; set; }
 
         //Holi
         protected override void OnModelCreating(ModelBuilder modelBuilder)

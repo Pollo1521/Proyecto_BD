@@ -1,0 +1,70 @@
+﻿@model Proyecto_BD.Models.Usuario
+
+@{
+    ViewData["Title"] = "RegistroPaciente";
+}
+
+<h1>Registro Paciente</h1>
+
+<hr />
+
+<span style="color:red">@Html.Raw(ViewBag.Message)</span>
+<span style="color:green">@Html.Raw(ViewBag.Completado)</span>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="RegistroPaciente">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Apellido_Paterno" class="control-label"></label>
+                <input asp-for="Apellido_Paterno" class="form-control" />
+                <span asp-validation-for="Apellido_Paterno" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Apellido_Materno" class="control-label"></label>
+                <input asp-for="Apellido_Materno" class="form-control" />
+                <span asp-validation-for="Apellido_Materno" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Correo" class="control-label"></label>
+                <input asp-for="Correo" class="form-control" />
+                <span asp-validation-for="Correo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CURP" class="control-label"></label>
+                <input asp-for="CURP" class="form-control" />
+                <span asp-validation-for="CURP" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fecha_Nacimiento" class="control-label"></label>
+                <input asp-for="Fecha_Nacimiento" class="form-control" />
+                <span asp-validation-for="Fecha_Nacimiento" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Repetir Contraseña</label>
+                <input name="PasswordRepetir" type="password" required placeholder="Repetir Contraseña" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Registarse" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Login">Iniciar Sesion</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

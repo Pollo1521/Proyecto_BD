@@ -17,9 +17,5 @@ namespace Proyecto_BD.Controllers
         [Required]
         [Display(Name = "Precio")]
         public float Precio_Servicio { get; set; }
-
-        //Llaves
-
-        ICollection<Ticket> Ticket { get; set; }
     }
 }

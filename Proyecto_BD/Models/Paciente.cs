@@ -10,11 +10,13 @@ namespace Proyecto_BD.Models
 
         public int ID_Usuario { get; set; }
         [ForeignKey("ID_Usuario")]
+        [Display(Name = "Nombre")]
         public Usuario Usuario { get; set; }
 
         [Display(Name = "Tipo de Sangre")]
         public int ID_Tipo_Sangre { get; set; }
         [ForeignKey("ID_Tipo_Sangre")]
+        [Display(Name = "Tipo de Sangre")]
         public TipoSangre Tipo_Sangres { get; set; }
 
         [Required]

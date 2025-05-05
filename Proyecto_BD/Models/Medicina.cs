@@ -19,9 +19,5 @@ namespace Proyecto_BD.Models
         [Required]
         [Display(Name = "Nombre")]
         public string Nombre_Medicina { get; set; }
-
-        //Llave
-
-        ICollection<Ticket> Ticket { get; set; }
     }
 }

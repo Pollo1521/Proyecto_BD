@@ -17,9 +17,5 @@ namespace Proyecto_BD.Models
         [ForeignKey("ID_Recepcionista")]
         [Required]
         public Recepcionista Recepcionista { get; set; }
-
-        //Llave
-
-        ICollection<Ticket> Ticket { get; set; }
     }
 }

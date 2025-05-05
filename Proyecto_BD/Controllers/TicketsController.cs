@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +20,33 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Tickets
+        //[Authorize(Roles = "1")]
         public async Task<IActionResult> Index()
         {
-            var contextoBaseDatos = _context.Ticket.Include(t => t.Medicina).Include(t => t.Servicio).Include(t => t.Venta);
-            return View(await contextoBaseDatos.ToListAsync());
+            var tickets = await _context.Ticket.Include(t => t.Venta).ToListAsync();
+
+            var view = new List<Ticket>();
+
+            foreach (var ticket in tickets)
+            {
+                object? value = ticket.Tipo_item
+
+                    ? _context.Medicina.FirstOrDefault(s => s.ID_Medicina == ticket.ID_Item)
+                    : _context.Servicio.FirstOrDefault(p => p.ID_Servicio == ticket.ID_Item);
+
+                view.Add(new Ticket{
+
+                    ID_Ticket = ticket.ID_Ticket,
+                    ID_Venta = ticket.ID_Venta,
+                    Tipo_item = ticket.Tipo_item,
+                    ID_Item = ticket.ID_Item,
+                    Venta = ticket.Venta,
+                    Medicina = ticket.Tipo_item ? value as Medicina : null,  // Asigna null si no es Medicina
+                    Servicio = !ticket.Tipo_item ? value as Servicio : null  // Asigna null si no es Servicio
+                });
+            }
+
+            return View(view);
         }
 
         // GET: Tickets/Details/5
@@ -34,8 +58,6 @@ namespace Proyecto_BD.Controllers
             }
 
             var ticket = await _context.Ticket
-                .Include(t => t.Medicina)
-                .Include(t => t.Servicio)
                 .Include(t => t.Venta)
                 .FirstOrDefaultAsync(m => m.ID_Ticket == id);
             if (ticket == null)
@@ -49,9 +71,8 @@ namespace Proyecto_BD.Controllers
         // GET: Tickets/Create
         public IActionResult Create()
         {
-            ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina");
-            ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion");
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas");
+            ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion");
             return View();
         }
 
@@ -60,17 +81,16 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Ticket,ID_Venta,ID_Medicina,ID_Servicio")] Ticket ticket)
+        public async Task<IActionResult> Create([Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item")] Ticket ticket)
         {
-            if (ticket.ID_Medicina != 0 || ticket.ID_Servicio != 0)
+            if (ticket.ID_Venta != 0 && ticket.ID_Item != 0)
             {
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina", ticket.ID_Medicina);
-            ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion", ticket.ID_Servicio);
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
+            ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion", ticket.ID_Item);
             return View(ticket);
         }
 
@@ -87,8 +107,6 @@ namespace Proyecto_BD.Controllers
             {
                 return NotFound();
             }
-            ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina", ticket.ID_Medicina);
-            ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion", ticket.ID_Servicio);
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
             return View(ticket);
         }
@@ -98,14 +116,14 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Ticket,ID_Venta,ID_Medicina,ID_Servicio")] Ticket ticket)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item")] Ticket ticket)
         {
             if (id != ticket.ID_Ticket)
             {
                 return NotFound();
             }
 
-            if (ticket.ID_Medicina != 0 || ticket.ID_Servicio != 0)
+            if (ModelState.IsValid)
             {
                 try
                 {
@@ -125,8 +143,6 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina", ticket.ID_Medicina);
-            ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion", ticket.ID_Servicio);
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
             return View(ticket);
         }
@@ -140,8 +156,6 @@ namespace Proyecto_BD.Controllers
             }
 
             var ticket = await _context.Ticket
-                .Include(t => t.Medicina)
-                .Include(t => t.Servicio)
                 .Include(t => t.Venta)
                 .FirstOrDefaultAsync(m => m.ID_Ticket == id);
             if (ticket == null)
