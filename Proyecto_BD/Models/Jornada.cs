@@ -18,6 +18,9 @@ namespace Proyecto_BD.Models
         [Display(Name = "Hora de Salida")]
         public DateTime Hora_Salida { get; set; }
 
+        [Display(Name = "Descripcion")]
+        public string descripcion { get; set; }
+
         //Llave
         ICollection<Medico> Medico { get; set; } 
         ICollection<Recepcionista> Recepcionista { get; set; }

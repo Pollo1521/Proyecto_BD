@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -48,12 +49,13 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Medicos/Create
-        public IActionResult Create()
+        [Authorize(Roles = "1, 4")]
+        public IActionResult Create(int id)
         {
             ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio");
             ViewData["ID_Especialidad"] = new SelectList(_context.Especialidad, "ID_Especialidad", "Descripcion");
-            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "ID_Jornada");
-            ViewData["ID_Usuario"] = new SelectList(_context.Usuario, "ID_Usuario", "Nombre");
+            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion");
+            ViewData["ID_Usuario"] = id;
             return View();
         }
 
@@ -72,8 +74,8 @@ namespace Proyecto_BD.Controllers
             }
             ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
             ViewData["ID_Especialidad"] = new SelectList(_context.Especialidad, "ID_Especialidad", "Descripcion", medico.ID_Especialidad);
-            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "ID_Jornada", medico.ID_Jornada);
-            ViewData["ID_Usuario"] = new SelectList(_context.Usuario, "ID_Usuario", "Apellido_Materno", medico.ID_Usuario);
+            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion", medico.ID_Jornada);
+            ViewData["ID_Usuario"] = medico.ID_Usuario;
             return View(medico);
         }
 
@@ -92,7 +94,7 @@ namespace Proyecto_BD.Controllers
             }
             ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
             ViewData["ID_Especialidad"] = new SelectList(_context.Especialidad, "ID_Especialidad", "Descripcion", medico.ID_Especialidad);
-            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "ID_Jornada", medico.ID_Jornada);
+            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion", medico.ID_Jornada);
             ViewData["ID_Usuario"] = new SelectList(_context.Usuario, "ID_Usuario", "Nombre", medico.ID_Usuario);
             return View(medico);
         }
@@ -131,7 +133,7 @@ namespace Proyecto_BD.Controllers
             }
             ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
             ViewData["ID_Especialidad"] = new SelectList(_context.Especialidad, "ID_Especialidad", "Descripcion", medico.ID_Especialidad);
-            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "ID_Jornada", medico.ID_Jornada);
+            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion", medico.ID_Jornada);
             ViewData["ID_Usuario"] = new SelectList(_context.Usuario, "ID_Usuario", "Nombre", medico.ID_Usuario);
             return View(medico);
         }

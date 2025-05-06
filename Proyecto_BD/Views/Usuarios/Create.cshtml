@@ -28,38 +28,23 @@
                 <span asp-validation-for="Apellido_Materno" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Correo" class="control-label"></label>
-                <input asp-for="Correo" class="form-control" />
-                <span asp-validation-for="Correo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="CURP" class="control-label"></label>
                 <input asp-for="CURP" class="form-control" />
                 <span asp-validation-for="CURP" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Correo" class="control-label"></label>
+                <input asp-for="Correo" class="form-control" />
+                <span asp-validation-for="Correo" class="text-danger"></span>
+            </div>            
             <div class="form-group">
                 <label asp-for="Fecha_Nacimiento" class="control-label"></label>
                 <input asp-for="Fecha_Nacimiento" class="form-control" />
                 <span asp-validation-for="Fecha_Nacimiento" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Fecha_Registro" class="control-label"></label>
-                <input asp-for="Fecha_Registro" class="form-control" />
-                <span asp-validation-for="Fecha_Registro" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="ID_Tipo_Usuario" class="control-label"></label>
                 <select asp-for="ID_Tipo_Usuario" class ="form-control" asp-items="ViewBag.ID_Tipo_Usuario"></select>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Estado_Usuario" /> @Html.DisplayNameFor(model => model.Estado_Usuario)
-                </label>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

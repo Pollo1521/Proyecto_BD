@@ -41,8 +41,10 @@ namespace Proyecto_BD.Models
         [Display(Name = "Fecha de Registro")]
         public DateTime Fecha_Registro { get; set; }
 
+        [Display(Name = "Tipo de Usuario")]
         public int ID_Tipo_Usuario { get; set; }
         [ForeignKey("ID_Tipo_Usuario")]
+        [Display(Name = "Tipo de Usuario")]
         public TipoUsuario TipoUsuario { get; set; }
 
         [Required]

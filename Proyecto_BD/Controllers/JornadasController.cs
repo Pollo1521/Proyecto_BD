@@ -53,7 +53,7 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Jornada,Hora_Entrada,Hora_Salida")] Jornada jornada)
+        public async Task<IActionResult> Create([Bind("ID_Jornada,Hora_Entrada,Hora_Salida,descripcion")] Jornada jornada)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Jornada,Hora_Entrada,Hora_Salida")] Jornada jornada)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Jornada,Hora_Entrada,Hora_Salida,descripcion")] Jornada jornada)
         {
             if (id != jornada.ID_Jornada)
             {

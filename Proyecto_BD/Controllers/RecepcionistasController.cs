@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -46,10 +47,11 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Recepcionistas/Create
-        public IActionResult Create()
+        [Authorize(Roles = "1, 4")]
+        public IActionResult Create(int id)
         {
-            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "ID_Jornada");
-            ViewData["ID_Usuario"] = new SelectList(_context.Usuario.Where(s => s.ID_Tipo_Usuario == 4), "ID_Usuario", "Apellido_Materno");
+            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion");
+            ViewData["ID_Usuario"] = id;
             return View();
         }
 
@@ -67,7 +69,7 @@ namespace Proyecto_BD.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "ID_Jornada", recepcionista.ID_Jornada);
-            ViewData["ID_Usuario"] = new SelectList(_context.Usuario.Where(s => s.ID_Tipo_Usuario == 1), "ID_Usuario", "Nombre", recepcionista.ID_Usuario);
+            ViewData["ID_Usuario"] = recepcionista.ID_Usuario;
             return View(recepcionista);
         }
 
