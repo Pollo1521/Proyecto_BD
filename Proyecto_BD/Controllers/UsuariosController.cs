@@ -129,6 +129,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Usuarios/Edit/5
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)

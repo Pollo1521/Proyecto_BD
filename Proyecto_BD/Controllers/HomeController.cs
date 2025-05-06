@@ -24,12 +24,13 @@ public class HomeController : Controller
         _correoElectronico =correoElectronico;
     }
 
-    //[Authorize(Roles = "0")]
+    [Authorize(Roles = "1")]
     public IActionResult Index()
     {
         return View();
     }
 
+    [Authorize(Roles = "1")]
     public IActionResult Privacy()
     {
         return View();
@@ -42,7 +43,6 @@ public class HomeController : Controller
     }
 
     // Login
-
     public IActionResult Login()
     {
         ViewBag.Error = String.IsNullOrEmpty(HttpContext.Request.Query["error"]) ? false : true;
@@ -81,18 +81,11 @@ public class HomeController : Controller
 
         switch (usuario.ID_Tipo_Usuario)
         {
-            //AJUSTAAAAAAAAAAAAAAAAAAAAAAAAAAR
-
             //Admin
-            //case 1:
-            //    var admin = _context.Gestiones.FirstOrDefault(x => x.Usuario_ID == usuario.Usuario_ID);
+            case 1:
+                var admin = _context.Usuario.FirstOrDefault(x => x.ID_Usuario == usuario.ID_Usuario);
 
-            //    if (admin == null)
-            //    {
-            //        return RedirectToAction(controllerName: "Gestiones", actionName: "Registro");
-            //    }
-
-            //    return RedirectToAction(controllerName: "Usuarios", actionName: "DatosUsuario");
+                return RedirectToAction(controllerName: "Home", actionName: "Index");
 
             // Paciente
             case 2:
@@ -105,18 +98,14 @@ public class HomeController : Controller
 
                 return RedirectToAction(controllerName: "Pacientes", actionName: "Index");
 
-            ////Alumno
-            //case 3:
-            //    var alumno = _context.Alumnos.FirstOrDefault(a => a.Usuario_ID == usuario.Usuario_ID);
+            //Doctor
+            case 3:
+                var medico = _context.Medico.FirstOrDefault(a => a.ID_Usuario == usuario.ID_Usuario);
 
-            //    if (alumno == null)
-            //    {
-            //        return RedirectToAction(controllerName: "Alumnos", actionName: "Registro");
-            //    }
+                return RedirectToAction(controllerName: "Medicos", actionName: "Index");
 
-            //    return RedirectToAction(controllerName: "Usuarios", actionName: "DatosUsuario");
-
-            default: return RedirectToAction(controllerName: "Home", actionName: "Index");
+            default: 
+                return RedirectToAction(controllerName: "Home", actionName: "Index");
         }
     }
 
@@ -224,4 +213,12 @@ public class HomeController : Controller
         ViewBag.Completado += string.Format("<br />Se ha enviado un correo con la nueva contraseña<br />");
         return View();
     }
+
+    //Cerrar Sesión
+    public IActionResult Logout()
+    {
+        HttpContext.SignOutAsync();
+        return RedirectToAction(controllerName: "Home", actionName: "Login");
+    }
+
 }

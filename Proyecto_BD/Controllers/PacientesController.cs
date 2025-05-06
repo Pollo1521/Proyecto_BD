@@ -122,7 +122,7 @@ namespace Proyecto_BD.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID_Paciente,ID_Usuario,ID_Tipo_Sangre,Peso,Alergia,Estatura")] Paciente paciente, 
-                                              string Nombre, string ApPa, string ApMa, string Correo, DateTime FechaNacimiento, string CURP)
+                                              string Nombre, string ApPa, string ApMa, string Correo, DateTime FechaNacimiento)
         {
             if (id != paciente.ID_Paciente)
             {
@@ -168,7 +168,6 @@ namespace Proyecto_BD.Controllers
                         usuario.Apellido_Materno = ApMa;
                         usuario.Correo = Correo;
                         usuario.Fecha_Nacimiento = FechaNacimiento;
-                        usuario.CURP = CURP;
                         _context.Update(usuario);
                         await _context.SaveChangesAsync();
                     }

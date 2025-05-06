@@ -7,26 +7,51 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
+using Proyecto_BD.Utilities;
 
 namespace Proyecto_BD.Controllers
 {
     public class MedicosController : Controller
     {
         private readonly ContextoBaseDatos _context;
+        private readonly CorreoElectronico _correoElectronico;
 
-        public MedicosController(ContextoBaseDatos context)
+        public MedicosController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
         {
             _context = context;
+            _correoElectronico = correoElectronico;
         }
 
         // GET: Medicos
+        [Authorize(Roles = "1, 3, 4")]
         public async Task<IActionResult> Index()
         {
-            var contextoBaseDatos = _context.Medico.Include(m => m.Consultorio).Include(m => m.Especialidad).Include(m => m.Jornada).Include(m => m.Usuario);
-            return View(await contextoBaseDatos.ToListAsync());
+            // Verifica si el usuario tiene el rol de administrador o Recepcionista
+            if (User.IsInRole("1") || User.IsInRole("4"))
+            {
+                var contextoBaseDatos = _context.Medico.Include(m => m.Consultorio).Include(m => m.Especialidad).Include(m => m.Jornada).Include(m => m.Usuario);
+                return View(await contextoBaseDatos.ToListAsync());
+            }
+
+            int ID_Usuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+
+            var medico = await _context.Medico
+                        .Include(m => m.Consultorio)
+                        .Include(m => m.Especialidad)
+                        .Include(m => m.Jornada)
+                        .Include(m => m.Usuario)
+                        .FirstOrDefaultAsync(m => m.ID_Usuario == ID_Usuario);
+
+            if (medico == null)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction("Details", new { id = medico.ID_Medico });
         }
 
         // GET: Medicos/Details/5
+        [Authorize(Roles = "1, 3, 4")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -80,6 +105,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Medicos/Edit/5
+        [Authorize(Roles = "1, 3, 4")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -178,6 +204,69 @@ namespace Proyecto_BD.Controllers
         private bool MedicoExists(int id)
         {
             return _context.Medico.Any(e => e.ID_Medico == id);
+        }
+
+
+        // GET: Medicos/ModificarDAtosPersonales/5
+
+        [Authorize(Roles = "1, 3, 4")]
+        public async Task<IActionResult> EditarDatos()
+        {
+
+            //Obtener el ID del usuario desde el token JWT
+            int id = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+
+            var usuario = await _context.Usuario.FindAsync(id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["ID_Tipo_Usuario"] = usuario.ID_Tipo_Usuario;
+            return View(usuario);
+        }
+
+        // POST: Medicos/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarDatos(int id, [Bind("ID_Usuario,Nombre,Apellido_Paterno,Apellido_Materno,Correo,CURP,Fecha_Nacimiento,Password,Fecha_Registro,ID_Tipo_Usuario,Estado_Usuario")] Usuario usuario)
+        {
+            if (id != usuario.ID_Usuario)
+            {
+                return NotFound();
+            }
+
+            // Verifica si el correo ya existe
+            var correoExistente = _context.Usuario.FirstOrDefault(u => u.Correo == usuario.Correo && u.ID_Usuario != usuario.ID_Usuario);
+
+            if (correoExistente != null)
+            {
+                ViewBag.Error += string.Format("El correo ya esta registrado<br />");
+                ViewData["ID_Tipo_Usuario"] = usuario.ID_Tipo_Usuario;
+                return View(usuario);
+            }
+
+            try
+            {
+                _context.Update(usuario);
+                await _context.SaveChangesAsync();
+                await _correoElectronico.EnviarCorreo(usuario.Correo, "Cambio de Datos", "Se ha realizado un cambio de datos personales");
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MedicoExists(usuario.ID_Usuario))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
     }
 }
