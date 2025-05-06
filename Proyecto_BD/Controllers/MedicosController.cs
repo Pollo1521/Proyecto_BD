@@ -207,7 +207,7 @@ namespace Proyecto_BD.Controllers
         }
 
 
-        // GET: Medicos/ModificarDAtosPersonales/5
+        // GET: Medicos/ModificarDatosPersonales/5
 
         [Authorize(Roles = "1, 3, 4")]
         public async Task<IActionResult> EditarDatos()

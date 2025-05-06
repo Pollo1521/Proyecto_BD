@@ -15,6 +15,9 @@ namespace Proyecto_BD.Models
         [Display(Name = "Numero de Consultorio")]
         public string Numero_Consultorio { get; set; }
 
+        [Display(Name = "Disponibilidad")]
+        public bool Disponible { get; set; }
+
         //Llave
         ICollection<Medico> Medico { get; set; }
     }

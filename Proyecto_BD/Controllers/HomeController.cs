@@ -104,8 +104,14 @@ public class HomeController : Controller
 
                 return RedirectToAction(controllerName: "Medicos", actionName: "Index");
 
-            default: 
-                return RedirectToAction(controllerName: "Home", actionName: "Index");
+            //Recepcionista
+            case 4:
+                var recepcionista = _context.Recepcionista.FirstOrDefault(a => a.ID_Usuario == usuario.ID_Usuario);
+
+                return RedirectToAction("Login", "Recepcionistas");
+
+            default:
+                return NotFound();
         }
     }
 

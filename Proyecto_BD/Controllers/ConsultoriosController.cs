@@ -53,7 +53,7 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Consultorio,Piso,Numero_Consultorio")] Consultorio consultorio)
+        public async Task<IActionResult> Create([Bind("ID_Consultorio,Piso,Numero_Consultorio,Disponible")] Consultorio consultorio)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Consultorio,Piso,Numero_Consultorio")] Consultorio consultorio)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Consultorio,Piso,Numero_Consultorio,Disponible")] Consultorio consultorio)
         {
             if (id != consultorio.ID_Consultorio)
             {
