@@ -249,5 +249,15 @@ namespace Proyecto_BD.Controllers
                 }
             }
         }
+
+        public async Task<IActionResult> EditarJornadas()
+        {
+            return RedirectToAction(controllerName: "Jornadas", actionName: "Index");
+        }
+
+        public async Task<IActionResult> EditarConsultorios()
+        {
+            return RedirectToAction(controllerName: "Consultorios", actionName: "Index");
+        }
     }
 }

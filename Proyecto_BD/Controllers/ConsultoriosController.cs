@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +20,14 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Consultorios
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Consultorio.ToListAsync());
         }
 
         // GET: Consultorios/Details/5
+        [Authorize(Roles = "1, 2, 3, 4")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,6 +46,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Consultorios/Create
+        [Authorize(Roles = "1, 4")]
         public IActionResult Create()
         {
             return View();
@@ -65,6 +69,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Consultorios/Edit/5
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -116,6 +121,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Consultorios/Delete/5
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
