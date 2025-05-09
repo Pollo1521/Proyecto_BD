@@ -158,5 +158,10 @@ namespace Proyecto_BD.Controllers
         {
             return _context.Consultorio.Any(e => e.ID_Consultorio == id);
         }
+
+        public async Task<IActionResult> AsignarConsultorio()
+        {
+            return RedirectToAction(controllerName: "Medicos", actionName: "Index");
+        }
     }
 }

@@ -268,5 +268,125 @@ namespace Proyecto_BD.Controllers
                 }
             }
         }
+
+        // GET: Medicos/Asignar Consultorio/5
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> AsignarConsultorio(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var medico = await _context.Medico.FindAsync(id);
+            if (medico == null)
+            {
+                return NotFound();
+            }
+            ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
+            ViewData["ID_Especialidad"] = medico.ID_Especialidad;
+            ViewData["ID_Jornada"] = medico.ID_Jornada;
+            ViewData["ID_Usuario"] = medico.ID_Usuario;
+            return View(medico);
+        }
+
+        // POST: Medicos/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AsignarConsultorio(int id, [Bind("ID_Medico,ID_Usuario,Cedula,ID_Especialidad,ID_Consultorio,ID_Jornada")] Medico medico)
+        {
+            if (id != medico.ID_Medico)
+            {
+                return NotFound();
+            }
+
+            if (medico.Cedula != "")
+            {
+                try
+                {
+                    _context.Update(medico);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MedicoExists(medico.ID_Medico))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
+            ViewData["ID_Especialidad"] = medico.ID_Especialidad;
+            ViewData["ID_Jornada"] = medico.ID_Jornada;
+            ViewData["ID_Usuario"] = medico.ID_Usuario;
+            return View(medico);
+        }
+
+        // GET: Medicos/Asignar Jornada/5
+        [Authorize(Roles = "1, 3, 4")]
+        public async Task<IActionResult> AsignarJornada(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var medico = await _context.Medico.FindAsync(id);
+            if (medico == null)
+            {
+                return NotFound();
+            }
+            ViewData["ID_Consultorio"] = medico.ID_Consultorio;
+            ViewData["ID_Especialidad"] = medico.ID_Especialidad;
+            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion", medico.ID_Jornada);
+            ViewData["ID_Usuario"] = medico.ID_Usuario;
+            return View(medico);
+        }
+
+        // POST: Medicos/Asignar Jornada/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AsignarJornada(int id, [Bind("ID_Medico,ID_Usuario,Cedula,ID_Especialidad,ID_Consultorio,ID_Jornada")] Medico medico)
+        {
+            if (id != medico.ID_Medico)
+            {
+                return NotFound();
+            }
+
+            if (medico.Cedula != "")
+            {
+                try
+                {
+                    _context.Update(medico);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MedicoExists(medico.ID_Medico))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["ID_Consultorio"] = medico.ID_Consultorio;
+            ViewData["ID_Especialidad"] = medico.ID_Especialidad;
+            ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion", medico.ID_Jornada);
+            ViewData["ID_Usuario"] = medico.ID_Usuario;
+            return View(medico);
+        }
     }
 }

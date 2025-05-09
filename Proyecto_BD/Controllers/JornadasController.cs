@@ -158,5 +158,10 @@ namespace Proyecto_BD.Controllers
         {
             return _context.Jornada.Any(e => e.ID_Jornada == id);
         }
+
+        public async Task<IActionResult> AsignarJornada()
+        {
+            return RedirectToAction(controllerName: "Medicos", actionName: "Index");
+        }
     }
 }
