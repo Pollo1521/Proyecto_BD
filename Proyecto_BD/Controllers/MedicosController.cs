@@ -283,7 +283,17 @@ namespace Proyecto_BD.Controllers
             {
                 return NotFound();
             }
-            ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
+
+            var consultoriosOcupados = _context.Medico
+                .Where(m => m.ID_Jornada == medico.ID_Jornada)
+                .Select(m => m.ID_Consultorio)
+                .ToList();
+
+            var consultoriosDisponibles = _context.Consultorio
+                .Where(c => !consultoriosOcupados.Contains(c.ID_Consultorio) && c.Disponible == true)
+                .ToList();
+
+            ViewData["ID_Consultorio"] = new SelectList(consultoriosDisponibles, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
             ViewData["ID_Especialidad"] = medico.ID_Especialidad;
             ViewData["ID_Jornada"] = medico.ID_Jornada;
             ViewData["ID_Usuario"] = medico.ID_Usuario;
@@ -322,7 +332,17 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ID_Consultorio"] = new SelectList(_context.Consultorio, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
+
+            var consultoriosOcupados = _context.Medico
+                .Where(m => m.ID_Jornada == medico.ID_Jornada)
+                .Select(m => m.ID_Consultorio)
+                .ToList();
+
+            var consultoriosDisponibles = _context.Consultorio
+                .Where(c => !consultoriosOcupados.Contains(c.ID_Consultorio) && c.Disponible == true)
+                .ToList();
+
+            ViewData["ID_Consultorio"] = new SelectList(consultoriosDisponibles, "ID_Consultorio", "Numero_Consultorio", medico.ID_Consultorio);
             ViewData["ID_Especialidad"] = medico.ID_Especialidad;
             ViewData["ID_Jornada"] = medico.ID_Jornada;
             ViewData["ID_Usuario"] = medico.ID_Usuario;

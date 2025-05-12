@@ -65,6 +65,11 @@ public class HomeController : Controller
             return RedirectToAction("Login", new { error = true });
         }
 
+        if (usuario.Estado_Usuario == false)
+        {
+            return RedirectToAction("Login", new { error = true });
+        }
+
         var autorizacion = new List<Claim>()
             {
                 new Claim(ClaimTypes.Email, usuario.Correo),
