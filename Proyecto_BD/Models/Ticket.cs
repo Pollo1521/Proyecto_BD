@@ -22,5 +22,9 @@ namespace Proyecto_BD.Models
         public Medicina? Medicina { get; set; }
         [NotMapped]
         public Servicio? Servicio { get; set; }
+
+        public int Cantidad { get; set; }
+
+        public float Subtotal { get; set; }
     }
 }

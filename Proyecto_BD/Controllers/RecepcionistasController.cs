@@ -48,7 +48,7 @@ namespace Proyecto_BD.Controllers
 
             return RedirectToAction("Details", new { id = recepcionista.ID_Recepcionista });
         }
-            
+
 
         // GET: Recepcionistas/Details/5
         [Authorize(Roles = "1, 4")]
@@ -250,14 +250,34 @@ namespace Proyecto_BD.Controllers
             }
         }
 
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> EditarJornadas()
         {
             return RedirectToAction(controllerName: "Jornadas", actionName: "Index");
         }
 
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> EditarConsultorios()
         {
             return RedirectToAction(controllerName: "Consultorios", actionName: "Index");
+        }
+
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> AdministrarFarmacia()
+        {
+            return RedirectToAction(controllerName: "Medicinas", actionName: "Index");
+        }
+
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> AdministrarServicios()
+        {
+            return RedirectToAction(controllerName: "Servicios", actionName: "Index");
+        }
+
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> AdministrarVentas()
+        {
+            return RedirectToAction(controllerName: "Ventas", actionName: "Index");
         }
     }
 }

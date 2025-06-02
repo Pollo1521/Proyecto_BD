@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +19,6 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Tickets
-        //[Authorize(Roles = "1")]
         public async Task<IActionResult> Index()
         {
             var tickets = await _context.Ticket.Include(t => t.Venta).ToListAsync();
@@ -34,15 +32,17 @@ namespace Proyecto_BD.Controllers
                     ? _context.Medicina.FirstOrDefault(s => s.ID_Medicina == ticket.ID_Item)
                     : _context.Servicio.FirstOrDefault(p => p.ID_Servicio == ticket.ID_Item);
 
-                view.Add(new Ticket{
-
+                view.Add(new Ticket
+                {
                     ID_Ticket = ticket.ID_Ticket,
                     ID_Venta = ticket.ID_Venta,
                     Tipo_item = ticket.Tipo_item,
                     ID_Item = ticket.ID_Item,
                     Venta = ticket.Venta,
                     Medicina = ticket.Tipo_item ? value as Medicina : null,  // Asigna null si no es Medicina
-                    Servicio = !ticket.Tipo_item ? value as Servicio : null  // Asigna null si no es Servicio
+                    Servicio = !ticket.Tipo_item ? value as Servicio : null,  // Asigna null si no es Servicio
+                    Cantidad = ticket.Cantidad,
+                    Subtotal = ticket.Subtotal
                 });
             }
 
@@ -69,7 +69,8 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Tickets/Create
-        public IActionResult Create()
+        // Agregar un servicio
+        public IActionResult AgregarServicio()
         {
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas");
             ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion");
@@ -81,16 +82,57 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item")] Ticket ticket)
+        public async Task<IActionResult> AgregarServicio([Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item,Cantidad,Subtotal")] Ticket ticket)
         {
             if (ticket.ID_Venta != 0 && ticket.ID_Item != 0)
             {
+                ticket.Tipo_item = false;
+
+                var precio = ticket.Tipo_item
+                    ? _context.Medicina.Where(m => m.ID_Medicina == ticket.ID_Item).Select(m => m.Precio_Medicina).FirstOrDefault()
+                    : _context.Servicio.Where(s => s.ID_Servicio == ticket.ID_Item).Select(s => s.Precio_Servicio).FirstOrDefault();
+
+                ticket.Subtotal = precio * ticket.Cantidad;
+
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
             ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion", ticket.ID_Item);
+            return View(ticket);
+        }
+
+        //Agregar Medicina
+
+        public IActionResult AgregarMedicina()
+        {
+            ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas");
+            ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina");
+            return View();
+        }
+
+        // POST: Tickets/Create/Medicina
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AgregarMedicina([Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item,Cantidad,Subtotal")] Ticket ticket)
+        {
+            if (ticket.ID_Venta != 0 && ticket.ID_Item != 0)
+            {
+                ticket.Tipo_item = true;
+
+                var precio = ticket.Tipo_item
+                    ? _context.Medicina.Where(m => m.ID_Medicina == ticket.ID_Item).Select(m => m.Precio_Medicina).FirstOrDefault()
+                    : _context.Servicio.Where(s => s.ID_Servicio == ticket.ID_Item).Select(s => s.Precio_Servicio).FirstOrDefault();
+
+                ticket.Subtotal = precio * ticket.Cantidad;
+
+                _context.Add(ticket);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
+            ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina", ticket.ID_Item);
             return View(ticket);
         }
 
@@ -116,7 +158,7 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item")] Ticket ticket)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item,Cantidad,Subtotal")] Ticket ticket)
         {
             if (id != ticket.ID_Ticket)
             {
