@@ -58,14 +58,24 @@ namespace Proyecto_BD.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID_Ventas,Fecha_Venta,ID_Recepcionista")] Ventas ventas)
         {
-            if (ventas.ID_Recepcionista != 0)
+
+            ventas.Fecha_Venta = DateTime.Now;
+            int ID_Usuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+            var recepcionista = await _context.Recepcionista.FirstOrDefaultAsync(r => r.ID_Usuario == ID_Usuario);
+
+            if(recepcionista == null)
             {
-                _context.Add(ventas);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            ViewData["ID_Recepcionista"] = new SelectList(_context.Recepcionista, "ID_Recepcionista", "ID_Recepcionista", ventas.ID_Recepcionista);
-            return View(ventas);
+
+            ventas.ID_Recepcionista = recepcionista.ID_Recepcionista;
+
+            _context.Add(ventas);
+            await _context.SaveChangesAsync();
+
+            TempData["VentaActual"] = ventas.ID_Ventas;
+            TempData.Keep("VentaActual");
+            return RedirectToAction("RegistrarVenta", "Tickets");
         }
 
         // GET: Ventas/Edit/5

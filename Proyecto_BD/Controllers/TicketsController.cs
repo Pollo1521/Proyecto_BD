@@ -74,6 +74,7 @@ namespace Proyecto_BD.Controllers
         {
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas");
             ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion");
+            TempData.Keep("VentaActual");
             return View();
         }
 
@@ -84,6 +85,25 @@ namespace Proyecto_BD.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AgregarServicio([Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item,Cantidad,Subtotal")] Ticket ticket)
         {
+            if (TempData["VentaActual"] == null)
+            {
+                return NotFound();
+            }
+
+            TempData.Keep("VentaActual");
+
+            if (TempData["VentaActual"] is int idVenta)
+            {
+                TempData.Keep("VentaActual");
+            }
+            else
+            {
+                return NotFound();
+            }
+
+            
+            ticket.ID_Venta = idVenta;
+
             if (ticket.ID_Venta != 0 && ticket.ID_Item != 0)
             {
                 ticket.Tipo_item = false;
@@ -96,7 +116,7 @@ namespace Proyecto_BD.Controllers
 
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("RegistrarVenta", "Tickets");
             }
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
             ViewData["ID_Servicio"] = new SelectList(_context.Servicio, "ID_Servicio", "Descripcion", ticket.ID_Item);
@@ -129,7 +149,7 @@ namespace Proyecto_BD.Controllers
 
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("RegistrarVenta", "Tickets");
             }
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
             ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina", ticket.ID_Item);
@@ -226,6 +246,44 @@ namespace Proyecto_BD.Controllers
         private bool TicketExists(int id)
         {
             return _context.Ticket.Any(e => e.ID_Ticket == id);
+        }
+
+        public async Task<IActionResult> RegistrarVenta()
+        {
+
+            if (TempData["VentaActual"] is not int idVenta)
+            {
+                return NotFound();
+            }
+
+            TempData.Keep("VentaActual");
+
+            var tickets = await _context.Ticket.Include(t => t.Venta).Where(t => t.ID_Venta == idVenta).ToListAsync();
+
+            var view = new List<Ticket>();
+
+            foreach (var ticket in tickets)
+            {
+                object? value = ticket.Tipo_item
+
+                    ? _context.Medicina.FirstOrDefault(s => s.ID_Medicina == ticket.ID_Item)
+                    : _context.Servicio.FirstOrDefault(p => p.ID_Servicio == ticket.ID_Item);
+
+                view.Add(new Ticket
+                {
+                    ID_Ticket = ticket.ID_Ticket,
+                    ID_Venta = ticket.ID_Venta,
+                    Tipo_item = ticket.Tipo_item,
+                    ID_Item = ticket.ID_Item,
+                    Venta = ticket.Venta,
+                    Medicina = ticket.Tipo_item ? value as Medicina : null,  // Asigna null si no es Medicina
+                    Servicio = !ticket.Tipo_item ? value as Servicio : null,  // Asigna null si no es Servicio
+                    Cantidad = ticket.Cantidad,
+                    Subtotal = ticket.Subtotal
+                });
+            }
+
+            return View(view);
         }
     }
 }
