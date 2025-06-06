@@ -2,23 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
+using Proyecto_BD.Utilities;
+using QuestPDF.Fluent;
 
 namespace Proyecto_BD.Controllers
 {
     public class TicketsController : Controller
     {
         private readonly ContextoBaseDatos _context;
+        private readonly CorreoElectronico _correoElectronico;
 
-        public TicketsController(ContextoBaseDatos context)
+        public TicketsController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
         {
             _context = context;
+            _correoElectronico = correoElectronico;
         }
 
         // GET: Tickets
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> Index()
         {
             var tickets = await _context.Ticket.Include(t => t.Venta).ToListAsync();
@@ -50,6 +56,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Tickets/Details/5
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -70,6 +77,7 @@ namespace Proyecto_BD.Controllers
 
         // GET: Tickets/Create
         // Agregar un servicio
+        [Authorize(Roles = "1, 4")]
         public IActionResult AgregarServicio()
         {
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas");
@@ -101,7 +109,7 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            
+
             ticket.ID_Venta = idVenta;
 
             if (ticket.ID_Venta != 0 && ticket.ID_Item != 0)
@@ -124,11 +132,12 @@ namespace Proyecto_BD.Controllers
         }
 
         //Agregar Medicina
-
+        [Authorize(Roles = "1, 4")]
         public IActionResult AgregarMedicina()
         {
             ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas");
             ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina");
+            TempData.Keep("VentaActual");
             return View();
         }
 
@@ -137,6 +146,24 @@ namespace Proyecto_BD.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AgregarMedicina([Bind("ID_Ticket,ID_Venta,Tipo_item,ID_Item,Cantidad,Subtotal")] Ticket ticket)
         {
+            if (TempData["VentaActual"] == null)
+            {
+                return NotFound();
+            }
+
+            TempData.Keep("VentaActual");
+
+            if (TempData["VentaActual"] is int idVenta)
+            {
+                TempData.Keep("VentaActual");
+            }
+            else
+            {
+                return NotFound();
+            }
+
+            ticket.ID_Venta = idVenta;
+
             if (ticket.ID_Venta != 0 && ticket.ID_Item != 0)
             {
                 ticket.Tipo_item = true;
@@ -157,6 +184,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Tickets/Edit/5
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -210,6 +238,7 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Tickets/Delete/5
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -248,6 +277,7 @@ namespace Proyecto_BD.Controllers
             return _context.Ticket.Any(e => e.ID_Ticket == id);
         }
 
+        [Authorize(Roles = "1, 4")]
         public async Task<IActionResult> RegistrarVenta()
         {
 
@@ -284,6 +314,56 @@ namespace Proyecto_BD.Controllers
             }
 
             return View(view);
+        }
+
+        [Authorize(Roles = "1, 4")]
+        public IActionResult GenerarTicket()
+        {
+            if (TempData["VentaActual"] is not int idVenta)
+            {
+                return NotFound();
+            }
+            TempData.Keep("VentaActual");
+            // Aquí podrías redirigir a la acción GenerarTicket para generar el PDF
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerarTicket(EnviarTicketViewModel model)
+        {
+            if (TempData["VentaActual"] is not int idVenta)
+            {
+                return NotFound();
+            }
+            TempData.Keep("VentaActual");
+
+            var tickets = await _context.Ticket.Include(t => t.Venta).Where(t => t.ID_Venta == idVenta).ToListAsync();
+
+            foreach(var t in tickets)
+            {
+                t.Medicina = t.Tipo_item ? await _context.Medicina.FindAsync(t.ID_Item) : null;
+                t.Servicio = !t.Tipo_item ? await _context.Servicio.FindAsync(t.ID_Item) : null;
+            }
+
+            var venta = tickets.FirstOrDefault()?.Venta;
+            var doc = new TicketDocument(tickets, venta);
+
+            var pdfBytes = doc.GeneratePdf();
+
+            string fecha = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+
+            var mensaje = string.Format("<h1>Hola</h1> <br /> <p>Se completo su compra de {0}</p>", fecha);
+
+            try
+            {
+                await _correoElectronico.EnviarCorreo(model.CorreoElectronico, "Ticket de Venta", mensaje, pdfBytes, $"Ticket_Venta_{idVenta}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(controllerName: "Ventas", actionName: "Index");
         }
     }
 }

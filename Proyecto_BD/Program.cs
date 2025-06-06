@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 // Add services to the container.
 builder.Services.AddDbContext<ContextoBaseDatos>(options =>
     options.UseSqlServer(connectionString));

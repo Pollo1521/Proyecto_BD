@@ -9,6 +9,7 @@
 <p>
     <a asp-action="AgregarServicio">Agregar Servicio</a>
     <a asp-action="AgregarMedicina">Agregar Medicina</a>
+    <a asp-action="GenerarTicket">Generar Ticket</a>
 </p>
 <table class="table">
     <thead>
@@ -51,7 +52,6 @@
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID_Ticket">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID_Ticket">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.ID_Ticket">Delete</a>
             </td>
         </tr>
