@@ -21,7 +21,7 @@ namespace Proyecto_BD.Controllers
         // GET: Citas
         public async Task<IActionResult> Index()
         {
-            var contextoBaseDatos = _context.Cita.Include(c => c.EstatusCita).Include(c => c.Medico).Include(c => c.Paciente);
+            var contextoBaseDatos = _context.Cita.Include(c => c.CitasHorario).Include(c => c.EstatusCita).Include(c => c.Medico).Include(c => c.Paciente);
             return View(await contextoBaseDatos.ToListAsync());
         }
 
@@ -34,6 +34,7 @@ namespace Proyecto_BD.Controllers
             }
 
             var cita = await _context.Cita
+                .Include(c => c.CitasHorario)
                 .Include(c => c.EstatusCita)
                 .Include(c => c.Medico)
                 .Include(c => c.Paciente)
@@ -49,12 +50,10 @@ namespace Proyecto_BD.Controllers
         // GET: Citas/Create
         public IActionResult Create()
         {
-            var pacientes = _context.Paciente.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-            var medicos = _context.Medico.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-
+            ViewData["ID_Cita_Horario"] = new SelectList(_context.CitasHorario, "ID_Horario", "Hora_Cita");
             ViewData["ID_Estatus_Cita"] = new SelectList(_context.EstatusCita, "ID_Estatus_Cita", "Estatus_Cita");
-            ViewData["ID_Medico"] = new SelectList(medicos, "ID_Medico", "Usuario.Nombre");
-            ViewData["ID_Paciente"] = new SelectList(pacientes, "ID_Paciente", "Usuario.Nombre");
+            ViewData["ID_Medico"] = new SelectList(_context.Medico, "ID_Medico", "Cedula");
+            ViewData["ID_Paciente"] = new SelectList(_context.Paciente, "ID_Paciente", "Alergia");
             return View();
         }
 
@@ -63,21 +62,18 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Cita,ID_Paciente,ID_Medico,Fecha_Registro,Fecha_Cita,Hora_Cita,ID_Estatus_Cita")] Cita cita)
+        public async Task<IActionResult> Create([Bind("ID_Cita,ID_Paciente,ID_Medico,Fecha_Registro,Fecha_Cita,ID_Cita_Horario,ID_Estatus_Cita")] Cita cita)
         {
-            if (cita.ID_Medico != 0)  //FALTA VALIDAR CITAS
+            if (ModelState.IsValid)
             {
                 _context.Add(cita);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            var pacientes = _context.Paciente.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-            var medicos = _context.Medico.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-
+            ViewData["ID_Cita_Horario"] = new SelectList(_context.CitasHorario, "ID_Horario", "ID_Horario", cita.ID_Cita_Horario);
             ViewData["ID_Estatus_Cita"] = new SelectList(_context.EstatusCita, "ID_Estatus_Cita", "Estatus_Cita", cita.ID_Estatus_Cita);
-            ViewData["ID_Medico"] = new SelectList(medicos, "ID_Medico", "Usuario.Nombre", cita.ID_Medico);
-            ViewData["ID_Paciente"] = new SelectList(pacientes, "ID_Paciente", "Usuario.Nombre", cita.ID_Paciente);
+            ViewData["ID_Medico"] = new SelectList(_context.Medico, "ID_Medico", "Cedula", cita.ID_Medico);
+            ViewData["ID_Paciente"] = new SelectList(_context.Paciente, "ID_Paciente", "Alergia", cita.ID_Paciente);
             return View(cita);
         }
 
@@ -94,13 +90,10 @@ namespace Proyecto_BD.Controllers
             {
                 return NotFound();
             }
-
-            var pacientes = _context.Paciente.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-            var medicos = _context.Medico.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-
+            ViewData["ID_Cita_Horario"] = new SelectList(_context.CitasHorario, "ID_Horario", "ID_Horario", cita.ID_Cita_Horario);
             ViewData["ID_Estatus_Cita"] = new SelectList(_context.EstatusCita, "ID_Estatus_Cita", "Estatus_Cita", cita.ID_Estatus_Cita);
-            ViewData["ID_Medico"] = new SelectList(medicos, "ID_Medico", "Usuario.Nombre", cita.ID_Medico);
-            ViewData["ID_Paciente"] = new SelectList(pacientes, "ID_Paciente", "Usuario.Nombre", cita.ID_Paciente);
+            ViewData["ID_Medico"] = new SelectList(_context.Medico, "ID_Medico", "Cedula", cita.ID_Medico);
+            ViewData["ID_Paciente"] = new SelectList(_context.Paciente, "ID_Paciente", "Alergia", cita.ID_Paciente);
             return View(cita);
         }
 
@@ -109,14 +102,14 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Cita,ID_Paciente,ID_Medico,Fecha_Registro,Fecha_Cita,Hora_Cita,ID_Estatus_Cita")] Cita cita)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Cita,ID_Paciente,ID_Medico,Fecha_Registro,Fecha_Cita,ID_Cita_Horario,ID_Estatus_Cita")] Cita cita)
         {
             if (id != cita.ID_Cita)
             {
                 return NotFound();
             }
 
-            if (cita.ID_Medico != 0)  //FALTA VALIDAR CITAS
+            if (ModelState.IsValid)
             {
                 try
                 {
@@ -136,13 +129,10 @@ namespace Proyecto_BD.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-
-            var pacientes = _context.Paciente.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-            var medicos = _context.Medico.Include(x => x.Usuario).Where(x => x.Usuario != null).ToList();
-
+            ViewData["ID_Cita_Horario"] = new SelectList(_context.CitasHorario, "ID_Horario", "ID_Horario", cita.ID_Cita_Horario);
             ViewData["ID_Estatus_Cita"] = new SelectList(_context.EstatusCita, "ID_Estatus_Cita", "Estatus_Cita", cita.ID_Estatus_Cita);
-            ViewData["ID_Medico"] = new SelectList(medicos, "ID_Medico", "Usuario.Nombre", cita.ID_Medico);
-            ViewData["ID_Paciente"] = new SelectList(pacientes, "ID_Paciente", "Usuario.Nombre", cita.ID_Paciente);
+            ViewData["ID_Medico"] = new SelectList(_context.Medico, "ID_Medico", "Cedula", cita.ID_Medico);
+            ViewData["ID_Paciente"] = new SelectList(_context.Paciente, "ID_Paciente", "Alergia", cita.ID_Paciente);
             return View(cita);
         }
 
@@ -155,6 +145,7 @@ namespace Proyecto_BD.Controllers
             }
 
             var cita = await _context.Cita
+                .Include(c => c.CitasHorario)
                 .Include(c => c.EstatusCita)
                 .Include(c => c.Medico)
                 .Include(c => c.Paciente)

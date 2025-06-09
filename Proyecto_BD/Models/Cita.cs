@@ -26,10 +26,9 @@ namespace Proyecto_BD.Models
         [Display(Name = "Fecha de Cita")]
         public DateTime Fecha_Cita { get; set; }
 
-        [Required]
-        [DataType(DataType.Time)]
-        [Display(Name = "Hora de Cita")]
-        public DateTime Hora_Cita { get; set; }
+        public int ID_Cita_Horario { get; set; }
+        [ForeignKey("ID_Cita_Horario")]
+        public CitasHorario CitasHorario { get; set; }
 
         public int ID_Estatus_Cita { get; set; }
         [ForeignKey("ID_Estatus_Cita")]

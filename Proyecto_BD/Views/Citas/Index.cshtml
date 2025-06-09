@@ -25,7 +25,7 @@
                 @Html.DisplayNameFor(model => model.Fecha_Cita)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Hora_Cita)
+                @Html.DisplayNameFor(model => model.CitasHorario)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EstatusCita)
@@ -49,7 +49,7 @@
                 @Html.DisplayFor(modelItem => item.Fecha_Cita)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Hora_Cita)
+                @Html.DisplayFor(modelItem => item.CitasHorario.Hora_Cita)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.EstatusCita.Estatus_Cita)
