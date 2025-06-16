@@ -228,5 +228,10 @@ namespace Proyecto_BD.Controllers
         {
             return _context.Paciente.Any(e => e.ID_Paciente == id);
         }
+
+        public async Task<IActionResult> AgendarCita()
+        {
+            return RedirectToAction(controllerName: "Citas", actionName: "Create");
+        }
     }
 }

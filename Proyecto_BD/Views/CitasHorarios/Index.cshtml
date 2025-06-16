@@ -15,6 +15,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Hora_Cita)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JornadaHorario)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -23,6 +26,9 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Hora_Cita)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JornadaHorario)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID_Horario">Edit</a> |

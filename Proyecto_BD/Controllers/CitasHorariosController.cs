@@ -53,9 +53,9 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID_Horario,Hora_Cita")] CitasHorario citasHorario)
+        public async Task<IActionResult> Create([Bind("ID_Horario,Hora_Cita,JornadaHorario")] CitasHorario citasHorario)
         {
-            if (citasHorario.Hora_Cita != null)
+            if (ModelState.IsValid)
             {
                 _context.Add(citasHorario);
                 await _context.SaveChangesAsync();
@@ -85,14 +85,14 @@ namespace Proyecto_BD.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID_Horario,Hora_Cita")] CitasHorario citasHorario)
+        public async Task<IActionResult> Edit(int id, [Bind("ID_Horario,Hora_Cita,JornadaHorario")] CitasHorario citasHorario)
         {
             if (id != citasHorario.ID_Horario)
             {
                 return NotFound();
             }
 
-            if (citasHorario.Hora_Cita != null)
+            if (ModelState.IsValid)
             {
                 try
                 {

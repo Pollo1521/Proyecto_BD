@@ -9,8 +9,11 @@ namespace Proyecto_BD.Models
 
         [Required]
         [DataType(DataType.Time)]
-        [Display(Name = "Hora de Salida")]
+        [Display(Name = "Hora de Cita")]
         public TimeOnly Hora_Cita { get; set; }
+        
+        [Required]
+        public bool JornadaHorario { get; set; }
 
         public ICollection<Cita> Cita { get; set; }
     }
