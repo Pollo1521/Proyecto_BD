@@ -55,7 +55,7 @@ namespace Proyecto_BD.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID_Horario,Hora_Cita,JornadaHorario")] CitasHorario citasHorario)
         {
-            if (ModelState.IsValid)
+            if (citasHorario.Hora_Cita != null)
             {
                 _context.Add(citasHorario);
                 await _context.SaveChangesAsync();
