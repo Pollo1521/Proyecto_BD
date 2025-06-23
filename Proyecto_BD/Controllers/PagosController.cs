@@ -186,7 +186,7 @@ namespace Proyecto_BD.Controllers
                 return View();
             }
 
-            var pago = await _context.Pago.FirstOrDefaultAsync(p => p.ID_Cita == idCita);
+            var pago = await _context.Pago.Include(p => p.Cita).FirstOrDefaultAsync(p => p.ID_Cita == idCita);
             if (pago == null)
             {
                 TempData["Error"] = "No se encontró un pago con el folio proporcionado.";
