@@ -100,7 +100,6 @@ namespace Proyecto_BD.Controllers
 
             if (tipoUsuario.Tipo_Usuario != "")
             {
-                await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "Hola mi amor", "Te amo con todo mi corazon, eres el amor de mi vida");
                 try
                 {
                     _context.Update(tipoUsuario);

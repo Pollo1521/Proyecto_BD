@@ -85,7 +85,7 @@ from Medicina m
 where m.Cantidad <= @cantidadMinima)
 
 --LLAMADO DE FUNCIONES
-select * from dbo.CitasPaciente(1);
+select * from dbo.CitasPaciente(10);
 select * from dbo.ObtenerPrecioMedicina(1);
-select * from dbo.LocalizarDoctor(2);
+select * from dbo.LocalizarDoctor(30);
 select * from dbo.ObtenerMedicina(10);

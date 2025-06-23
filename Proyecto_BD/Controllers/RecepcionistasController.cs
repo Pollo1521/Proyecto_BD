@@ -279,5 +279,11 @@ namespace Proyecto_BD.Controllers
         {
             return RedirectToAction(controllerName: "Ventas", actionName: "Index");
         }
+
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> RegistrarEmpleado()
+        {
+            return RedirectToAction(controllerName: "Usuarios", actionName: "Create");
+        }
     }
 }
