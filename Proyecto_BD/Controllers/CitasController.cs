@@ -214,7 +214,7 @@ namespace Proyecto_BD.Controllers
                                             cita.Fecha_Cita.ToString("d"), horario.Hora_Cita.ToString("hh\\:mm"), consultorio.Consultorio.Numero_Consultorio);
                 try
                 {
-                    await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "Linea de Pago", mensaje, pdfBytes, $"Linea_Pago_{cita.ID_Cita}.pdf");
+                    await _correoElectronico.EnviarCorreo(usuario.Correo, "Linea de Pago", mensaje, pdfBytes, $"Linea_Pago_{cita.ID_Cita}.pdf");
                 }
                 catch (Exception ex)
                 {
