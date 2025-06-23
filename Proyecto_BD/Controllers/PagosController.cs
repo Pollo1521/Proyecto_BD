@@ -21,6 +21,12 @@ namespace Proyecto_BD.Controllers
         // GET: Pagos
         public async Task<IActionResult> Index()
         {
+            // Verifica si el usuario tiene el rol de administrador o Recepcionista
+            if (User.IsInRole("2"))
+            {
+                return RedirectToAction(controllerName: "Pacientes", actionName: "Index");
+            }
+
             var contextoBaseDatos = _context.Pago.Include(p => p.Cita);
             return View(await contextoBaseDatos.ToListAsync());
         }
@@ -158,6 +164,67 @@ namespace Proyecto_BD.Controllers
         private bool PagoExists(int id)
         {
             return _context.Pago.Any(e => e.ID_Pago == id);
+        }
+
+        public IActionResult RealizarPago()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RealizarPago(string folio)
+        {
+            if (string.IsNullOrEmpty(folio))
+            {
+                TempData["Error"] = "El folio no puede estar vacío.";
+                return View();
+            }
+
+            if (!int.TryParse(folio, out int idCita))
+            {
+                TempData["Error"] = "El folio debe ser un número válido.";
+                return View();
+            }
+
+            var pago = await _context.Pago.FirstOrDefaultAsync(p => p.ID_Cita == idCita);
+            if (pago == null)
+            {
+                TempData["Error"] = "No se encontró un pago con el folio proporcionado.";
+                return View();
+            }
+
+            var fechaRegistro = pago.Cita.Fecha_Registro;
+            var tiempoLimite = fechaRegistro.AddHours(8);
+
+            if (DateTime.Now > tiempoLimite)
+            {
+                TempData["Error"] = "El tiempo para realizar el pago ha expirado.";
+                return View();
+            }
+
+            if (pago.Estado_Pago)
+            {
+                TempData["Error"] = "El pago ya ha sido realizado.";
+                return View();
+            }
+
+            pago.Estado_Pago = true;
+            pago.ComprobantePago = "Ya pagaron";
+
+            _context.Update(pago);
+            await _context.SaveChangesAsync();
+
+            var cita = await _context.Cita.FirstOrDefaultAsync(c => c.ID_Cita == idCita);
+
+            if (cita != null)
+            {
+                cita.ID_Estatus_Cita = 2;
+                _context.Update(cita);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["Success"] = "Pago realizado exitosamente.";
+            return View();
         }
     }
 }

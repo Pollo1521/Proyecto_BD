@@ -29,7 +29,7 @@ namespace Proyecto_BD.Controllers
             // Verifica si el usuario tiene el rol de administrador o Recepcionista
             if (User.IsInRole("1") || User.IsInRole("4"))
             {
-                var contextoBaseDatos = _context.Medico.Include(m => m.Consultorio).Include(m => m.Especialidad).Include(m => m.Jornada).Include(m => m.Usuario);
+                var contextoBaseDatos = _context.Medico.Include(m => m.Consultorio).Include(m => m.Especialidad).Include(m => m.Jornada).Include(m => m.Usuario).Where(u => u.Usuario.Estado_Usuario == true);
                 return View(await contextoBaseDatos.ToListAsync());
             }
 
@@ -192,9 +192,29 @@ namespace Proyecto_BD.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var medico = await _context.Medico.FindAsync(id);
+
+            bool citaPendiente = _context.Cita.Any(c => c.ID_Medico == id && (c.ID_Estatus_Cita == 1 || c.ID_Estatus_Cita == 2));
+
+            if (citaPendiente)
+            {
+                TempData["CitaPendiente"] = "El medico tiene Citas Pendientes";
+                medico = await _context.Medico
+                .Include(m => m.Consultorio)
+                .Include(m => m.Especialidad)
+                .Include(m => m.Jornada)
+                .Include(m => m.Usuario)
+                .FirstOrDefaultAsync(m => m.ID_Medico == id);
+                return View(medico);
+            }
+
             if (medico != null)
             {
-                _context.Medico.Remove(medico);
+                var usuario = await _context.Usuario.FindAsync(medico.ID_Usuario);
+                if (usuario != null)
+                {
+                    usuario.Estado_Usuario = false;
+                    _context.Usuario.Update(usuario);
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -407,6 +427,11 @@ namespace Proyecto_BD.Controllers
             ViewData["ID_Jornada"] = new SelectList(_context.Jornada, "ID_Jornada", "descripcion", medico.ID_Jornada);
             ViewData["ID_Usuario"] = medico.ID_Usuario;
             return View(medico);
+        }
+
+        public async Task<IActionResult> VerCitas()
+        {
+            return RedirectToAction(controllerName: "Citas", actionName: "Index");
         }
     }
 }

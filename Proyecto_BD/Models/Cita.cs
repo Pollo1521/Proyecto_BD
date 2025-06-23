@@ -28,10 +28,12 @@ namespace Proyecto_BD.Models
 
         public int ID_Cita_Horario { get; set; }
         [ForeignKey("ID_Cita_Horario")]
+        [Display(Name = "Hora de Cita")]
         public CitasHorario CitasHorario { get; set; }
 
         public int ID_Estatus_Cita { get; set; }
         [ForeignKey("ID_Estatus_Cita")]
+        [Display(Name = "Estatus")]
         public EstatusCita EstatusCita { get; set; }
 
         //Llave

@@ -45,6 +45,10 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="ID_Medico" />
+        @if (TempData["CitaPendiente"] != null)
+        {
+            <div class="alert alert-danger">@TempData["CitaPendiente"]</div>
+        }
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

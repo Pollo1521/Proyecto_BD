@@ -163,10 +163,21 @@ namespace Proyecto_BD.Controllers
             }
 
             ticket.ID_Venta = idVenta;
+            ticket.Tipo_item = true;
 
-            if (ticket.ID_Venta != 0 && ticket.ID_Item != 0)
+            if (ticket.ID_Venta != 0)
             {
-                ticket.Tipo_item = true;
+                var medicina = await _context.Medicina.FindAsync(ticket.ID_Item);
+
+                if(medicina.Cantidad < ticket.Cantidad)
+                {
+                    TempData["Error"] = $"Solo hay {medicina.Cantidad} unidades";
+                    ViewData["ID_Venta"] = new SelectList(_context.Venta, "ID_Ventas", "ID_Ventas", ticket.ID_Venta);
+                    ViewData["ID_Medicina"] = new SelectList(_context.Medicina, "ID_Medicina", "Nombre_Medicina", ticket.ID_Item);
+                    return View(ticket);
+                }
+
+                medicina.Cantidad -= ticket.Cantidad;
 
                 var precio = ticket.Tipo_item
                     ? _context.Medicina.Where(m => m.ID_Medicina == ticket.ID_Item).Select(m => m.Precio_Medicina).FirstOrDefault()

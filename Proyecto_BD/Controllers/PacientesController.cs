@@ -233,5 +233,15 @@ namespace Proyecto_BD.Controllers
         {
             return RedirectToAction(controllerName: "Citas", actionName: "Create");
         }
+
+        public async Task<IActionResult> RealizarPago()
+        {
+            return RedirectToAction(controllerName: "Pagos", actionName: "RealizarPago");
+        }
+
+        public async Task<IActionResult> VerCitas()
+        {
+            return RedirectToAction(controllerName: "Citas", actionName: "Index");
+        }
     }
 }

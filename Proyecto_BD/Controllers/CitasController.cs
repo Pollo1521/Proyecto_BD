@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using AspNetCoreGeneratedDocument;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
 using Proyecto_BD.Utilities;
+using QuestPDF.Fluent;
+
 
 namespace Proyecto_BD.Controllers
 {
@@ -22,9 +27,38 @@ namespace Proyecto_BD.Controllers
         }
 
         // GET: Citas
+        [Authorize(Roles = "1, 2, 3")]
         public async Task<IActionResult> Index()
         {
-            var contextoBaseDatos = _context.Cita.Include(c => c.CitasHorario).Include(c => c.EstatusCita).Include(c => c.Medico).Include(c => c.Paciente);
+            var contextoBaseDatos = _context.Cita.Include(c => c.CitasHorario).Include(c => c.EstatusCita).Include(c => c.Medico).ThenInclude(m => m.Usuario).Include(c => c.Paciente).ThenInclude(p => p.Usuario).OrderByDescending(c => c.Fecha_Cita);
+            
+            if (User.IsInRole("2"))
+            {
+                // Si el usuario es paciente, filtra las citas por el ID del paciente
+                int ID_Usuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+                var paciente = await _context.Paciente.FirstOrDefaultAsync(p => p.ID_Usuario == ID_Usuario);
+                if (paciente == null)
+                {
+                    return NotFound();
+                }
+                TempData["TipoUsuario"] = "Paciente";
+                var citasPaciente = contextoBaseDatos.Where(c => c.ID_Paciente == paciente.ID_Paciente);
+            }
+
+            // Si el usuario es médico, filtra las citas por el ID del médico
+            if (User.IsInRole("3"))
+            {
+                TempData["TipoUsuario"] = "Doctor";
+                int ID_Usuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+                var medico = await _context.Medico.FirstOrDefaultAsync(m => m.ID_Usuario == ID_Usuario);
+                if (medico == null)
+                {
+                    return NotFound();
+                }
+                var citasMedico = contextoBaseDatos.Where(c => c.ID_Medico == medico.ID_Medico && (c.ID_Estatus_Cita == 2 || c.ID_Estatus_Cita == 3)).OrderBy(c => c.Fecha_Cita);
+                return View(await citasMedico.ToListAsync());
+            }
+
             return View(await contextoBaseDatos.ToListAsync());
         }
 
@@ -76,7 +110,15 @@ namespace Proyecto_BD.Controllers
             cita.Fecha_Registro = DateTime.Now;
             cita.ID_Estatus_Cita = 1;
 
-            if(cita.Fecha_Cita < DateTime.Now.Date.AddDays(1) || cita.Fecha_Cita > DateTime.Now.Date.AddMonths(3))
+            int ID_Usuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+            var paciente = _context.Paciente.FirstOrDefault(p => p.ID_Usuario == ID_Usuario);
+
+            if (paciente == null)
+            {
+                return NotFound();
+            }
+
+            if (cita.Fecha_Cita < DateTime.Now.Date.AddDays(1) || cita.Fecha_Cita > DateTime.Now.Date.AddMonths(3))
             {
                 ModelState.AddModelError("Fecha_Cita", "La fecha de la cita debe ser al menos un día después de hoy y no más de 3 meses en el futuro.");
             }
@@ -85,6 +127,12 @@ namespace Proyecto_BD.Controllers
                 .Any(c => c.ID_Medico == cita.ID_Medico &&
                           c.Fecha_Cita.Date == cita.Fecha_Cita.Date &&
                           c.ID_Cita_Horario == cita.ID_Cita_Horario
+                );
+
+            bool citaPendiente = _context.Cita
+                .Any(c => c.ID_Medico == cita.ID_Medico &&
+                          c.ID_Paciente == paciente.ID_Paciente &&
+                          c.ID_Estatus_Cita <= 2
                 );
 
             var horario = _context.CitasHorario
@@ -98,10 +146,66 @@ namespace Proyecto_BD.Controllers
                 ModelState.AddModelError(string.Empty, "El horario seleccionado ya está ocupado para el medico seleccionado");
             }
 
+            if (citaPendiente)
+            {
+                ModelState.AddModelError(string.Empty, "Ya se tiene una cita agendada con dicho doctor");
+            }
+
             if (cita.ID_Medico != 0 || cita.ID_Cita_Horario != 0)
             {
-                _context.Add(cita);
-                await _context.SaveChangesAsync();
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                try
+                {
+                    _context.Cita.Add(cita);
+                    await _context.SaveChangesAsync();
+
+                    var pago = new Pago
+                    {
+                        ID_Cita = cita.ID_Cita,
+                        Estado_Pago = false,
+                        ComprobantePago = ""
+                    };
+
+                    _context.Pago.Add(pago);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+
+                //Obtener la información necesaria para el PDF
+                var infoPDF = await _context.Cita
+                    .Include(c => c.Paciente)
+                        .ThenInclude(p => p.Usuario)
+                    .Include(c => c.Medico)
+                        .ThenInclude(m => m.Usuario)
+                    .Include(c => c.Medico.Especialidad)
+                    .Include(c => c.Medico.Consultorio)
+                    .Include(c => c.CitasHorario)
+                    .FirstOrDefaultAsync(c => c.ID_Cita == cita.ID_Cita);
+
+                //Crear objeto para el PDF
+                var datosPago = new LineaPagoData
+                {
+                    Paciente = $"{cita.Paciente.Usuario.Nombre} {cita.Paciente.Usuario.Apellido_Paterno} {cita.Paciente.Usuario.Apellido_Materno}",
+                    CURP = cita.Paciente.Usuario.CURP,
+                    FechaCita = cita.Fecha_Cita,
+                    HoraCita = cita.CitasHorario.Hora_Cita.ToString(@"hh\:mm"),
+                    Medico = $"{cita.Medico.Usuario.Nombre} {cita.Medico.Usuario.Apellido_Paterno}",
+                    Especialidad = cita.Medico.Especialidad.Descripcion,
+                    Consultorio = $"Piso {cita.Medico.Consultorio.Piso}, No. {cita.Medico.Consultorio.Numero_Consultorio}",
+                    Precio = cita.Medico.Especialidad.PrecioCita,
+                    LinkPago = $"{cita.ID_Cita}"
+                };
+
+                //Generar PDF
+                var documento = new LineaPagoDocument(datosPago);
+                var pdfBytes = documento.GeneratePdf();
 
                 // Enviar correo de confirmación
                 var idUsuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
@@ -110,27 +214,18 @@ namespace Proyecto_BD.Controllers
                                             cita.Fecha_Cita.ToString("d"), horario.Hora_Cita.ToString("hh\\:mm"), consultorio.Consultorio.Numero_Consultorio);
                 try
                 {
-                    await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "Cita", mensaje);
+                    await _correoElectronico.EnviarCorreo("victortr1521@gmail.com", "Linea de Pago", mensaje, pdfBytes, $"Linea_Pago_{cita.ID_Cita}.pdf");
                 }
                 catch (Exception ex)
                 {
                     //Holi, no se que poner aqui XD
                 }
 
-                return RedirectToAction(nameof(Index));
-            }
-
-            int ID_Usuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
-
-            var paciente = _context.Paciente.FirstOrDefault(p => p.ID_Usuario == ID_Usuario);
-            if (paciente == null)
-            {
-                return NotFound();
+                return RedirectToAction(controllerName: "Pacientes", actionName: "Index");
             }
 
             ViewData["ID_Paciente"] = paciente.ID_Paciente;
             ViewData["Especialidades"] = new SelectList(_context.Especialidad, "ID_Especialidad", "Descripcion");
-
 
             return View(cita);
         }
@@ -278,7 +373,7 @@ namespace Proyecto_BD.Controllers
                 .ToList();
 
             var horariosOcupados = _context.Cita
-                .Where(c => c.ID_Medico == idMedico && c.Fecha_Cita.Date == fecha.Date) // Solo citas confirmadas
+                .Where(c => c.ID_Medico == idMedico && c.Fecha_Cita.Date == fecha.Date && c.ID_Estatus_Cita != 5) // Solo citas confirmadas
                 .Select(c => c.ID_Cita_Horario)
                 .ToList();
 
