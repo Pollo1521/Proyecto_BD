@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -158,6 +159,32 @@ namespace Proyecto_BD.Controllers
         private bool TratamientoExists(int id)
         {
             return _context.Tratamiento.Any(e => e.ID_Tratamiento == id);
+        }
+
+        [Authorize(Roles = "1, 4")]
+        public async Task<IActionResult> RegistrarTratamiento()
+        {
+            if (TempData["RecetaActual"] is not int idReceta)
+            {
+                return NotFound();
+            }
+            TempData.Keep("RecetaActual");
+
+            var tratamientos = await _context.Tratamiento.Include(t => t.ID_Receta).Where(t => t.ID_Receta == idReceta).ToListAsync();
+
+            var view = new List<Tratamiento>();
+
+            foreach(var tratamiento in tratamientos)
+            {
+                view.Add(new Tratamiento
+                {
+                    ID_Receta = tratamiento.ID_Receta,
+                    Medicamento = tratamiento.Medicamento,
+                    Indicaciones = tratamiento.Indicaciones
+                });
+            }
+
+            return View(view);
         }
     }
 }

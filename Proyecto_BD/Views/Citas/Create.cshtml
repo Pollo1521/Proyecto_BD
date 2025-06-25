@@ -40,7 +40,7 @@
             <div class="form-group">
                 <label asp-for="Fecha_Cita" class="control-label"></label>
                 <input asp-for="Fecha_Cita" class="form-control"  id="fechaCita" type="date"
-                       min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")"
+                       min="@DateTime.Now.AddDays(2).ToString("yyyy-MM-dd")"
                        max="@DateTime.Now.AddMonths(3).ToString("yyyy-MM-dd")" />
                 <span asp-validation-for="Fecha_Cita" class="text-danger"></span>
             </div>
@@ -59,7 +59,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Cancelar">Cancelar</a>
 </div>
 
 @section Scripts {

@@ -47,7 +47,13 @@ namespace Proyecto_BD.Controllers
         // GET: Recetas/Create
         public IActionResult Create()
         {
-            ViewData["ID_Cita"] = new SelectList(_context.Cita, "ID_Cita", "ID_Cita");
+            if (TempData["CitaActual"] is not int idCita)
+            {
+                return NotFound();
+            }
+            TempData.Keep("CitaActual");
+
+            ViewData["ID_Cita"] = new SelectList(_context.Cita, "ID_Cita", "ID_Cita", idCita);
             return View();
         }
 
@@ -62,10 +68,13 @@ namespace Proyecto_BD.Controllers
             {
                 _context.Add(receta);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                TempData["RecetaActual"] = receta.ID_Cita;
+                TempData.Keep("RecetaActual");
+                return RedirectToAction("RegistrarTratamiento", "Tratamientos");
             }
-            ViewData["ID_Cita"] = new SelectList(_context.Cita, "ID_Cita", "ID_Cita", receta.ID_Cita);
-            return View(receta);
+
+            return NotFound();
         }
 
         // GET: Recetas/Edit/5

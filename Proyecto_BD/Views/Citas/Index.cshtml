@@ -6,6 +6,16 @@
 
 <h1>Index</h1>
 
+@if (TempData["TipoUsuario"].ToString() == "Paciente")
+{
+    <a asp-action="Cancelar">Regresar</a>
+}
+
+@if (TempData["TipoUsuario"].ToString() == "Doctor")
+{
+    <a asp-action="CancelarDoctor">Regresar</a>
+}
+
 <table class="table">
     <thead>
         <tr>
@@ -27,31 +37,50 @@
             <th>
                 @Html.DisplayNameFor(model => model.EstatusCita)
             </th>
+            @if (TempData["TipoUsuario"].ToString() == "Doctor")
+            {
+                <th>
+                    <label>Atender</label>
+                </th>
+            }
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Paciente.Usuario.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Medico.Usuario.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fecha_Registro)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fecha_Cita)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CitasHorario.Hora_Cita)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EstatusCita.Estatus_Cita)
-            </td>
-            
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Paciente.Usuario.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Medico.Usuario.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fecha_Registro)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fecha_Cita)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CitasHorario.Hora_Cita)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EstatusCita.Estatus_Cita)
+                </td>
+
+                @if (TempData["TipoUsuario"].ToString() == "Doctor" && item.Fecha_Cita.Date == DateTime.Now.Date)
+                {
+                    <th>
+                        <a asp-action="Agregarreceta" asp-route-id="@item.ID_Cita">Agregar Receta</a>
+                    </th>
+                }
+                else
+                {
+                    <th>
+                       
+                    </th>
+                }
+
             @if (TempData["TipoUsuario"] == null)
             {
                 <td>

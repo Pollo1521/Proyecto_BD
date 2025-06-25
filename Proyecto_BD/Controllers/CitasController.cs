@@ -43,6 +43,7 @@ namespace Proyecto_BD.Controllers
                 }
                 TempData["TipoUsuario"] = "Paciente";
                 var citasPaciente = contextoBaseDatos.Where(c => c.ID_Paciente == paciente.ID_Paciente);
+                return View(await citasPaciente.ToListAsync());
             }
 
             // Si el usuario es médico, filtra las citas por el ID del médico
@@ -118,7 +119,7 @@ namespace Proyecto_BD.Controllers
                 return NotFound();
             }
 
-            if (cita.Fecha_Cita < DateTime.Now.Date.AddDays(1) || cita.Fecha_Cita > DateTime.Now.Date.AddMonths(3))
+            if (cita.Fecha_Cita < DateTime.Now.Date.AddDays(2) || cita.Fecha_Cita > DateTime.Now.Date.AddMonths(3))
             {
                 ModelState.AddModelError("Fecha_Cita", "La fecha de la cita debe ser al menos un día después de hoy y no más de 3 meses en el futuro.");
             }
@@ -195,7 +196,7 @@ namespace Proyecto_BD.Controllers
                     Paciente = $"{cita.Paciente.Usuario.Nombre} {cita.Paciente.Usuario.Apellido_Paterno} {cita.Paciente.Usuario.Apellido_Materno}",
                     CURP = cita.Paciente.Usuario.CURP,
                     FechaCita = cita.Fecha_Cita,
-                    HoraCita = cita.CitasHorario.Hora_Cita.ToString(@"hh\:mm"),
+                    HoraCita = cita.CitasHorario.Hora_Cita.ToString(@"hh\:mm tt"),
                     Medico = $"{cita.Medico.Usuario.Nombre} {cita.Medico.Usuario.Apellido_Paterno}",
                     Especialidad = cita.Medico.Especialidad.Descripcion,
                     Consultorio = $"Piso {cita.Medico.Consultorio.Piso}, No. {cita.Medico.Consultorio.Numero_Consultorio}",
@@ -382,11 +383,33 @@ namespace Proyecto_BD.Controllers
                 .Select(h => new SelectListItem
                 {
                     Value = h.ID_Horario.ToString(),
-                    Text = h.Hora_Cita.ToString("hh\\:mm")
+                    Text = h.Hora_Cita.ToString("hh\\:mm tt")
                 })
                 .ToList();
 
             return Json(horarios);
+        }
+
+        public async Task<IActionResult> Cancelar()
+        {
+            return RedirectToAction(controllerName: "Pacientes", actionName: "Index");
+        }
+
+        public async Task<IActionResult> CancelarDoctor()
+        {
+            return RedirectToAction(controllerName: "Medicos", actionName: "Index");
+        }
+
+        public async Task<IActionResult> AgregarReceta(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            TempData["CitaActual"] = id;
+            TempData.Keep("CitaActual");
+            return RedirectToAction(controllerName: "Recetas", actionName: "Create");
         }
     }
 }
