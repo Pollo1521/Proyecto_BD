@@ -31,6 +31,7 @@ namespace Proyecto_BD.Models
         public DbSet<Ventas> Venta { get; set; }
         public DbSet<Ticket> Ticket { get; set; }
         public DbSet<CitasHorario> CitasHorario { get; set; }
+        public DbSet<Bitacora> Bitacoras { get; set; }
 
         //Holi
         protected override void OnModelCreating(ModelBuilder modelBuilder)

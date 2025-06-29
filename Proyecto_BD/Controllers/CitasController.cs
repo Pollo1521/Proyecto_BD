@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using AspNetCoreGeneratedDocument;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -185,48 +186,50 @@ namespace Proyecto_BD.Controllers
                     throw;
                 }
 
-                ////Obtener la información necesaria para el PDF
-                //var infoPDF = await _context.Cita
-                //    .Include(c => c.Paciente)
-                //        .ThenInclude(p => p.Usuario)
-                //    .Include(c => c.Medico)
-                //        .ThenInclude(m => m.Usuario)
-                //    .Include(c => c.Medico.Especialidad)
-                //    .Include(c => c.Medico.Consultorio)
-                //    .Include(c => c.CitasHorario)
-                //    .FirstOrDefaultAsync(c => c.ID_Cita == cita.ID_Cita);
+                //Obtener la información necesaria para el PDF
+                var infoPDF = await _context.Cita
+                    .Include(c => c.Paciente)
+                        .ThenInclude(p => p.Usuario)
+                    .Include(c => c.Medico)
+                        .ThenInclude(m => m.Usuario)
+                    .Include(c => c.Medico.Especialidad)
+                    .Include(c => c.Medico.Consultorio)
+                    .Include(c => c.CitasHorario)
+                    .FirstOrDefaultAsync(c => c.ID_Cita == cita.ID_Cita);
 
-                ////Crear objeto para el PDF
-                //var datosPago = new LineaPagoData
-                //{
-                //    Paciente = $"{cita.Paciente.Usuario.Nombre} {cita.Paciente.Usuario.Apellido_Paterno} {cita.Paciente.Usuario.Apellido_Materno}",
-                //    CURP = cita.Paciente.Usuario.CURP,
-                //    FechaCita = cita.Fecha_Cita,
-                //    HoraCita = cita.CitasHorario.Hora_Cita.ToString(@"hh\:mm tt"),
-                //    Medico = $"{cita.Medico.Usuario.Nombre} {cita.Medico.Usuario.Apellido_Paterno}",
-                //    Especialidad = cita.Medico.Especialidad.Descripcion,
-                //    Consultorio = $"Piso {cita.Medico.Consultorio.Piso}, No. {cita.Medico.Consultorio.Numero_Consultorio}",
-                //    Precio = cita.Medico.Especialidad.PrecioCita,
-                //    LinkPago = $"{cita.ID_Cita}"
-                //};
+                //Crear objeto para el PDF
+                var datosPago = new LineaPagoData
+                {
+                    Paciente = $"{cita.Paciente.Usuario.Nombre} {cita.Paciente.Usuario.Apellido_Paterno} {cita.Paciente.Usuario.Apellido_Materno}",
+                    CURP = cita.Paciente.Usuario.CURP,
+                    FechaCita = cita.Fecha_Cita,
+                    HoraCita = cita.CitasHorario.Hora_Cita.ToString(@"hh\:mm tt"),
+                    Medico = $"{cita.Medico.Usuario.Nombre} {cita.Medico.Usuario.Apellido_Paterno}",
+                    Especialidad = cita.Medico.Especialidad.Descripcion,
+                    Consultorio = $"Piso {cita.Medico.Consultorio.Piso}, No. {cita.Medico.Consultorio.Numero_Consultorio}",
+                    Precio = cita.Medico.Especialidad.PrecioCita,
+                    LinkPago = $"{cita.ID_Cita}"
+                };
 
-                ////Generar PDF
-                //var documento = new LineaPagoDocument(datosPago);
-                //var pdfBytes = documento.GeneratePdf();
+                //Generar PDF
+                var documento = new LineaPagoDocument(datosPago);
+                var pdfBytes = documento.GeneratePdf();
 
-                //// Enviar correo de confirmación
-                //var idUsuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
-                //var usuario = _context.Usuario.FirstOrDefault(u => u.ID_Usuario == idUsuario);
-                //var mensaje = string.Format("<h1>Confirmacion de Cita</h1> <br /> <p>Se registro correctamente la cita para el: {0} a las {1}. Consultorio: {2}</p>",
-                //                            cita.Fecha_Cita.ToString("d"), horario.Hora_Cita.ToString("hh\\:mm"), consultorio.Consultorio.Numero_Consultorio);
-                //try
-                //{
-                //    await _correoElectronico.EnviarCorreo(usuario.Correo, "Linea de Pago", mensaje, pdfBytes, $"Linea_Pago_{cita.ID_Cita}.pdf");
-                //}
-                //catch (Exception ex)
-                //{
-                //    //Holi, no se que poner aqui XD
-                //}
+                // Enviar correo de confirmación
+                var idUsuario = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+                var usuario = _context.Usuario.FirstOrDefault(u => u.ID_Usuario == idUsuario);
+                var mensaje = string.Format("<h1>Confirmacion de Cita</h1> <br /> <p>Se registro correctamente la cita para el: {0} a las {1}. Consultorio: {2}</p>",
+                                            cita.Fecha_Cita.ToString("d"), horario.Hora_Cita.ToString("hh\\:mm"), consultorio.Consultorio.Numero_Consultorio);
+                try
+                {
+                    await _correoElectronico.EnviarCorreo(usuario.Correo, "Linea de Pago", mensaje, pdfBytes, $"Linea_Pago_{cita.ID_Cita}.pdf");
+                }
+                catch (Exception ex)
+                {
+                    //Holi, no se que poner aqui XD
+                }
+
+                BackgroundJob.Schedule<CancelarCita>(x => x.CancelarCitaNoPagada(cita.ID_Cita), TimeSpan.FromHours(8));
 
                 return RedirectToAction(controllerName: "Pacientes", actionName: "Index");
             }
@@ -307,8 +310,8 @@ namespace Proyecto_BD.Controllers
             var cita = await _context.Cita
                 .Include(c => c.CitasHorario)
                 .Include(c => c.EstatusCita)
-                .Include(c => c.Medico)
-                .Include(c => c.Paciente)
+                .Include(c => c.Medico).ThenInclude(m => m.Usuario)
+                .Include(c => c.Paciente).ThenInclude(p => p.Usuario)
                 .FirstOrDefaultAsync(m => m.ID_Cita == id);
             if (cita == null)
             {
@@ -324,12 +327,54 @@ namespace Proyecto_BD.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var cita = await _context.Cita.FindAsync(id);
-            if (cita != null)
+            if (cita == null)
             {
-                _context.Cita.Remove(cita);
+                return NotFound();                
             }
 
+            cita.ID_Estatus_Cita = 5; // Cambiar el estatus a cancelada
+            _context.Cita.Update(cita);
             await _context.SaveChangesAsync();
+
+            // Enviar correo de cancelación
+            var paciente = await _context.Paciente
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(p => p.ID_Paciente == cita.ID_Paciente);
+
+            if (paciente == null)
+            {
+                return NotFound();
+            }
+
+            var diferencia = cita.Fecha_Cita - DateTime.Now;
+            string mensaje;
+
+            if (diferencia.TotalHours >= 48)
+            {
+                // Reembolso completo
+                mensaje = string.Format("<h1>Cancelacion de Cita</h1> <br /> <p>Se cancelo su cita del dia: {0} Reembolso recibido: 100%</p>", cita.Fecha_Cita);
+            }
+            else if (diferencia.TotalHours >= 24)
+            {
+                // Reembolso del 50%
+                mensaje = string.Format("<h1>Cancelacion de Cita</h1> <br /> <p>Se cancelo su cita del dia: {0} Reembolso recibido: 50%</p>", cita.Fecha_Cita);
+            }
+            else
+            {
+                // Sin reembolso
+                mensaje = string.Format("<h1>Cancelacion de Cita</h1> <br /> <p>Se cancelo su cita del dia: {0} Reembolso recibido: 0%</p>", cita.Fecha_Cita);
+            }
+
+            try
+            {
+                await _correoElectronico.EnviarCorreo(paciente.Usuario.Correo, "Cancelacion Cita", mensaje);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                //Holi, no se que poner aqui XD
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -415,6 +460,18 @@ namespace Proyecto_BD.Controllers
             TempData["CitaActual"] = id;
             TempData.Keep("CitaActual");
             return RedirectToAction(controllerName: "Recetas", actionName: "Create");
+        }
+
+        public async Task<IActionResult> VerBitacora(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            TempData["PacienteActual"] = id;
+            TempData.Keep("PacienteActual");
+            return RedirectToAction(controllerName: "Bitacoras", actionName: "Index");
         }
     }
 }

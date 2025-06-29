@@ -30,5 +30,7 @@ namespace Proyecto_BD.Models
         [ForeignKey("ID_Jornada")]
         [Required]
         public Jornada Jornada { get; set; }
+
+        public ICollection<Bitacora> Bitacoras { get; set; }
     }
 }

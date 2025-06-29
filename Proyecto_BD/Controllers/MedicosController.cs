@@ -433,5 +433,10 @@ namespace Proyecto_BD.Controllers
         {
             return RedirectToAction(controllerName: "Citas", actionName: "Index");
         }
+
+        public async Task<IActionResult> VerRecetas()
+        {
+            return RedirectToAction(controllerName: "Recetas", actionName: "Index");
+        }
     }
 }

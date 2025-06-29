@@ -7,16 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_BD.Models;
+using Proyecto_BD.Utilities;
+using QuestPDF.Fluent;
 
 namespace Proyecto_BD.Controllers
 {
     public class TratamientosController : Controller
     {
         private readonly ContextoBaseDatos _context;
+        private readonly CorreoElectronico _correoElectronico;
 
-        public TratamientosController(ContextoBaseDatos context)
+        public TratamientosController(ContextoBaseDatos context, CorreoElectronico correoElectronico)
         {
             _context = context;
+            _correoElectronico = correoElectronico;
         }
 
         // GET: Tratamientos
@@ -48,6 +52,7 @@ namespace Proyecto_BD.Controllers
         // GET: Tratamientos/Create
         public IActionResult Create()
         {
+            TempData.Keep("RecetaActual");
             ViewData["ID_Receta"] = new SelectList(_context.Receta, "ID_Receta", "ID_Receta");
             return View();
         }
@@ -59,12 +64,26 @@ namespace Proyecto_BD.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID_Tratamiento,ID_Receta,Medicamento,Indicaciones")] Tratamiento tratamiento)
         {
+            if (TempData["RecetaActual"] == null)
+            {
+                return NotFound();
+            }
+            TempData.Keep("RecetaActual");
+
+            if (TempData["RecetaActual"] is not int idReceta)
+            {
+                return NotFound();
+            }
+            TempData.Keep("RecetaActual");
+
             if (tratamiento.Medicamento != "" && tratamiento.Indicaciones != "")
             {
+                TempData.Keep("RecetaActual");
                 _context.Add(tratamiento);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("RegistrarTratamiento", "Tratamientos");
             }
+            TempData.Keep("RecetaActual");
             ViewData["ID_Receta"] = new SelectList(_context.Receta, "ID_Receta", "ID_Receta", tratamiento.ID_Receta);
             return View(tratamiento);
         }
@@ -161,7 +180,7 @@ namespace Proyecto_BD.Controllers
             return _context.Tratamiento.Any(e => e.ID_Tratamiento == id);
         }
 
-        [Authorize(Roles = "1, 4")]
+        [Authorize(Roles = "1, 3")]
         public async Task<IActionResult> RegistrarTratamiento()
         {
             if (TempData["RecetaActual"] is not int idReceta)
@@ -170,7 +189,7 @@ namespace Proyecto_BD.Controllers
             }
             TempData.Keep("RecetaActual");
 
-            var tratamientos = await _context.Tratamiento.Include(t => t.ID_Receta).Where(t => t.ID_Receta == idReceta).ToListAsync();
+            var tratamientos = await _context.Tratamiento.Include(t => t.Receta).Where(t => t.ID_Receta == idReceta).ToListAsync();
 
             var view = new List<Tratamiento>();
 
@@ -185,6 +204,64 @@ namespace Proyecto_BD.Controllers
             }
 
             return View(view);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GenerarReceta()
+        {
+            if (TempData["RecetaActual"] is not int idReceta)
+            {
+                return NotFound();
+            }
+            TempData.Keep("RecetaActual");
+
+            var receta = await _context.Receta.Include(r => r.Tratamiento).FirstOrDefaultAsync(r => r.ID_Receta == idReceta);
+
+            int idCita = receta.ID_Cita;
+            var cita = await _context.Cita.FirstOrDefaultAsync(c => c.ID_Cita == idCita);
+
+            int idPaciente = cita.ID_Paciente;
+            var paciente = await _context.Paciente.Include(p => p.Usuario).FirstOrDefaultAsync(p => p.ID_Paciente == idPaciente);
+
+            int idMedico = cita.ID_Medico;
+            var medico = await _context.Medico.Include(m => m.Usuario).FirstOrDefaultAsync(m => m.ID_Medico == idMedico);
+
+            var doc = new RecetaPdfDocument(receta, cita, paciente, medico); // tu clase QuestPDF personalizada
+            var pdfBytes = doc.GeneratePdf();
+
+            var correo = paciente.Usuario.Correo;
+            var mensaje = $"<h2>Receta Médica</h2><p>Diagnóstico: {receta.Diagnostico}</p>";
+
+            try
+            {
+                await _correoElectronico.EnviarCorreo(correo, "Receta Médica", mensaje, pdfBytes, $"Receta_{receta.ID_Receta}.pdf");
+            }
+            catch
+            {
+                return NotFound();
+            }
+
+            TempData["RecetaActual"] = null; // Limpiar TempData después de enviar el correo
+
+            var bitacora = new Bitacora
+            {
+                Fecha_Movimiento = DateTime.Now,
+                ID_Medico = idMedico,
+                ID_Paciente = idPaciente,
+                ID_Cita = idCita
+            };
+
+            try
+            {
+                _context.Bitacoras.Add(bitacora);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(controllerName: "Medicos", actionName: "Index");
         }
     }
 }

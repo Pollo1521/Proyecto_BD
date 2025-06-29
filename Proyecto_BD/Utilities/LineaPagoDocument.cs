@@ -44,6 +44,10 @@ namespace Proyecto_BD.Utilities
                     col.Item().Text($"Costo de la cita: ${data.Precio:F2}").Bold();
                     col.Item().Text("Estado del pago: PENDIENTE").FontColor(Colors.Red.Medium).Bold();
                     col.Item().Text("Cuenta con 8hr para realizar el pago").FontColor(Colors.Red.Medium).Bold();
+                    col.Item().Text("Cancelacion:").FontColor(Colors.Red.Medium).Bold();
+                    col.Item().Text("Mas de 48 hr -> 100% reembolso:").FontColor(Colors.Red.Medium).Bold();
+                    col.Item().Text("Mas de 24 hr -> 50% reembolso:").FontColor(Colors.Red.Medium).Bold();
+                    col.Item().Text("Menos de 24 hr -> 0% reembolso:").FontColor(Colors.Red.Medium).Bold();
 
                     col.Item().PaddingTop(20).Text($"Realiza tu pago desde la pagina con el folio: {data.LinkPago}").Italic();
                 });

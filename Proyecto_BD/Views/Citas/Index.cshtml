@@ -38,9 +38,18 @@
                 @Html.DisplayNameFor(model => model.EstatusCita)
             </th>
             @if (TempData["TipoUsuario"].ToString() == "Doctor")
-            {
+            { 
+                <th>
+                    <label>Bitacora</label>
+                </th>
                 <th>
                     <label>Atender</label>
+                </th>               
+            }
+            @if (TempData["TipoUsuario"].ToString() == "Paciente" || TempData["TipoUsuario"] == null)
+            {
+                <th>
+                    <label>Cancelar</label>
                 </th>
             }
             <th></th>
@@ -68,17 +77,25 @@
                     @Html.DisplayFor(modelItem => item.EstatusCita.Estatus_Cita)
                 </td>
 
-                @if (TempData["TipoUsuario"].ToString() == "Doctor" && item.Fecha_Cita.Date == DateTime.Now.Date)
+                @if (TempData["TipoUsuario"].ToString() == "Doctor")
                 {
-                    <th>
-                        <a asp-action="Agregarreceta" asp-route-id="@item.ID_Cita">Agregar Receta</a>
-                    </th>
+                   <td>
+                        <a asp-action="VerBitacora" asp-route-id="@item.ID_Paciente">Ver Bitacora</a>
+                   </td>
+
+                    @if (item.Fecha_Cita.Date == DateTime.Now.Date)
+                    {                        
+                        <td>
+                            <a asp-action="Agregarreceta" asp-route-id="@item.ID_Cita">Agregar Receta</a>
+                        </td>
+                    }                    
                 }
-                else
+
+                @if ((TempData["TipoUsuario"].ToString() == "Paciente" || TempData["TipoUsuario"] == null) && ((item.Fecha_Cita - DateTime.Now).TotalSeconds > 0) && item.ID_Estatus_Cita < 3)
                 {
-                    <th>
-                       
-                    </th>
+                    <td>
+                        <a asp-action="Delete" asp-route-id="@item.ID_Cita">Cancelar</a>
+                    </td>
                 }
 
             @if (TempData["TipoUsuario"] == null)

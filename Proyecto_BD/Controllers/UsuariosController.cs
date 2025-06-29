@@ -220,6 +220,6 @@ namespace Proyecto_BD.Controllers
         private bool UsuarioExists(int id)
         {
             return _context.Usuario.Any(e => e.ID_Usuario == id);
-        }
+        }        
     }
 }

@@ -31,5 +31,6 @@ namespace Proyecto_BD.Models
 
         //Llaves
         public ICollection<Cita> Cita { get; set; }
+        public ICollection<Bitacora> Bitacoras { get; set; }
     }
 }

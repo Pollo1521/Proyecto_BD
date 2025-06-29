@@ -40,5 +40,6 @@ namespace Proyecto_BD.Models
 
         public ICollection<Receta> Recetas { get; set; }
         public ICollection<Pago> Pagos { get; set; }
+        public ICollection<Bitacora> Bitacoras { get; set; }
     }
 }

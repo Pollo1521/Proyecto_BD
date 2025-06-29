@@ -21,6 +21,23 @@ namespace Proyecto_BD.Controllers
         // GET: Recetas
         public async Task<IActionResult> Index()
         {
+            if(User.IsInRole("3"))
+            {
+                int id = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+                var doctor = await _context.Medico.FirstOrDefaultAsync(u => u.ID_Usuario == id);
+                if (doctor == null)
+                {
+                    return NotFound();
+                }
+                id = doctor.ID_Medico;
+                var recetas = await _context.Receta
+                    .Include(r => r.Cita)
+                    .Where(r => r.Cita.ID_Medico == id)
+                    .ToListAsync();
+
+                return View(recetas);
+            }
+
             var contextoBaseDatos = _context.Receta.Include(r => r.Cita);
             return View(await contextoBaseDatos.ToListAsync());
         }
@@ -69,7 +86,7 @@ namespace Proyecto_BD.Controllers
                 _context.Add(receta);
                 await _context.SaveChangesAsync();
 
-                TempData["RecetaActual"] = receta.ID_Cita;
+                TempData["RecetaActual"] = receta.ID_Receta;
                 TempData.Keep("RecetaActual");
                 return RedirectToAction("RegistrarTratamiento", "Tratamientos");
             }

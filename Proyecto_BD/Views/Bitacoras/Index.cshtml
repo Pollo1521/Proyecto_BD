@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Proyecto_BD.Models.Bitacora>
+
+@{
+    ViewData["Title"] = "Bitacora";
+}
+
+<h1>Bitacora</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.ID_Bitacora)</th>
+            <th>@Html.DisplayNameFor(model => model.Fecha_Movimiento)</th>
+            <th>Médico</th>
+            <th>Especialidad</th>
+            <th>Paciente</th>
+            <th>Diagnóstico</th>
+            <th>Consultorio</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var receta = item.Cita.Recetas.FirstOrDefault();
+            <tr>
+                <td>@item.ID_Bitacora</td>
+                <td>@item.Fecha_Movimiento.ToString("dd/MM/yyyy")</td>
+                <td>@($"{item.Medico.Usuario.Nombre} {item.Medico.Usuario.Apellido_Paterno}")</td>
+                <td>@item.Medico.Especialidad.Descripcion</td>
+                <td>@($"{item.Paciente.Usuario.Nombre} {item.Paciente.Usuario.Apellido_Paterno}")</td>
+                <td>@receta?.Diagnostico</td>
+                <td>@item.Medico.Consultorio.Numero_Consultorio</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

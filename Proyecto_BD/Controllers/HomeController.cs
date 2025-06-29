@@ -232,4 +232,52 @@ public class HomeController : Controller
         return RedirectToAction(controllerName: "Home", actionName: "Login");
     }
 
+    public async Task<IActionResult> Inicio()
+    {
+        int id = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "ID_Usuario")?.Value);
+
+        var usuario = await _context.Usuario
+            .Include(u => u.TipoUsuario)
+            .FirstOrDefaultAsync(m => m.ID_Usuario == id);
+
+        if (usuario == null)
+        {
+            return NotFound();
+        }
+
+        switch (usuario.ID_Tipo_Usuario)
+        {
+            //Admin
+            case 1:
+                var admin = _context.Usuario.FirstOrDefault(x => x.ID_Usuario == usuario.ID_Usuario);
+
+                return RedirectToAction(controllerName: "Home", actionName: "Index");
+
+            // Paciente
+            case 2:
+                var paciente = _context.Paciente.FirstOrDefault(x => x.ID_Usuario == usuario.ID_Usuario);
+
+                if (paciente == null)
+                {
+                    return RedirectToAction(controllerName: "Pacientes", actionName: "Create");
+                }
+
+                return RedirectToAction(controllerName: "Pacientes", actionName: "Index");
+
+            //Doctor
+            case 3:
+                var medico = _context.Medico.FirstOrDefault(a => a.ID_Usuario == usuario.ID_Usuario);
+
+                return RedirectToAction(controllerName: "Medicos", actionName: "Index");
+
+            //Recepcionista
+            case 4:
+                var recepcionista = _context.Recepcionista.FirstOrDefault(a => a.ID_Usuario == usuario.ID_Usuario);
+
+                return RedirectToAction("Login", "Recepcionistas");
+
+            default:
+                return NotFound();
+        }
+    }
 }
