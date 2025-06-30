@@ -1,116 +1,25 @@
 ﻿.header {
     grid-area: header;
-    background-color: #75003E;
-}
-
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-html,
-body {
-    height: 100%;
-    font-family: Open Sans;
+    background-color: #0d47a1;
 }
 
 body {
-    background-color: white;
-}
-
-
-/*--------------------
-Buttons
---------------------*/
-.btn {
-    display: block;
-    background: #75003E;
-    color: white;
-    font-size: 15px;
-    text-decoration: none;
-    margin: 20px 0;
-    padding: 15px 15px;
-    border-radius: 5px;
-    position: relative;
-    &::after
-
-{
-    content: '';
-    position: absolute;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    width: 100%;
+    background: linear-gradient(135deg, #e3f2fd, #ffffff);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #1a237e;
     height: 100%;
-    transition: all .2s ease-in-out;
-    box-shadow: inset 0 3px 0 hsla(0, 0, 0, 0), 0 3px 3px hsla(0, 0, 0, .2);
-    border-radius: 5px;
 }
 
-&:hover::after {
-    background: hsla(0, 0, 0, 0.1);
-    box-shadow: inset 0 3px 0 hsla(0, 0, 0, 0.2);
-}
-
-}
-
-/*--------------------
-Form
---------------------*/
-.form {
-    fieldset
-
-{
-    border: none;
-    padding: 0;
-    margin: 20px 0;
-    position: relative;
-    input
-
-{
-    width: 100%;
-    height: 48px;
-    color: hsl(0, 0, 20);
-    padding: 15px 40px 15px 15px;
-    border-radius: 5px;
-    font-size: 14px;
-    outline: none !important;
-    border: 1px solid hsla(0, 0, 0, 0.3);
-    box-shadow: inset 0 1px 4px hsla(0, 0, 0, 0.2);
-    vertical-align: top;
-}
-
-}
-
-button {
-    width: 100%;
-    outline: none !important;
-    background-color: #75003E;
-    border: none;
-    text-transform: uppercase;
-    font-weight: bold;
-    box-shadow: 0 3px 0px hsla(86, 21%, 44%, 0.2);
-    text-shadow: 0 2px 3px hsla(0, 0, 0, 0.2);
-}
-
-}
-
-
-
-/*--------------------
-Signup
---------------------*/
 .login {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
-    width: 800px;
-    background: hsl(0, 0, 100);
-    border-radius: 10px;
-    box-shadow: 0 3px 25px hsla(0, 0, 0, 0.2);
+    width: 850px;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(13, 71, 161, 0.25);
     overflow: hidden;
     display: flex;
 }
@@ -118,39 +27,69 @@ Signup
 .login-datos,
 .login-sistge {
     width: 50%;
-    padding: 30px 50px;
+    padding: 40px 50px;
 }
 
 .login-sistge {
-    background: #75003E;
+    background: linear-gradient(to bottom right, #1565c0, #0d47a1);
     color: white;
-    h1
-
-{
-    font-size: 30px;
-    margin-top: 10px;
-    margin-bottom: 40px;
-    text-shadow: 0 2px 3px hsla(0, 0, 0, 0.1);
 }
 
-}
+    .login-sistge h1 {
+        font-size: 30px;
+        margin-top: 10px;
+        margin-bottom: 40px;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-img {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-.login-datos {
-    h2
-
-{
-    font-size: 16px;
+.login-datos h2 {
+    font-size: 17px;
     font-weight: normal;
-    margin-top: 23px;
-    margin-bottom: 43px;
-    text-shadow: 0 2px 3px hsla(0, 0, 0, 0.1);
+    margin-top: 25px;
+    margin-bottom: 45px;
+    color: #0d47a1;
 }
 
+.form fieldset {
+    border: none;
+    padding: 0;
+    margin: 20px 0;
+    position: relative;
+}
+
+    .form fieldset input {
+        width: 100%;
+        height: 48px;
+        color: #0d47a1;
+        padding: 15px 40px 15px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none !important;
+        border: 1px solid #90caf9;
+        box-shadow: inset 0 1px 4px rgba(13, 71, 161, 0.1);
+        background-color: #f9fcff;
+    }
+
+.form button {
+    width: 100%;
+    outline: none !important;
+    background: linear-gradient(to right, #1565c0, #1e88e5);
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 25px;
+    border: none;
+    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3);
+    transition: background 0.3s ease;
+}
+
+    .form button:hover {
+        background: linear-gradient(to right, #0d47a1, #1976d2);
+    }
+
+/* Íconos FontAwesome */
 fieldset::after {
     content: '\f007';
     font-family: FontAwesome;
@@ -159,7 +98,7 @@ fieldset::after {
     top: 17px;
     z-index: 2;
     width: 20px;
-    color: hsla(0, 0, 0, .2);
+    color: rgba(0, 0, 0, 0.2);
     text-align: center;
 }
 
@@ -169,5 +108,4 @@ fieldset.email::after {
 
 fieldset.password::after {
     content: '\f023';
-}
 }
