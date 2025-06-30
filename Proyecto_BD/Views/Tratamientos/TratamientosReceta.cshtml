@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Proyecto_BD.Models.Tratamiento>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Tratamientos</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Medicamento)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Indicaciones)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Medicamento)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Indicaciones)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

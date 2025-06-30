@@ -4,8 +4,6 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
 <div>
     <h4>Paciente</h4>
     <hr />
@@ -61,8 +59,8 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.ID_Paciente">Modificar Datos</a>
-    <a asp-action="AgendarCita">Agendar Cita</a>
-    <a asp-action="RealizarPago">Realizar Pago</a>
-    <a asp-action="VerCitas">Historial de Citas</a>
+    <a asp-action="Edit" asp-route-id="@Model?.ID_Paciente" class="btn btn-primary">Modificar Datos</a>
+    <a asp-action="AgendarCita" class="btn btn-success">Agendar Cita</a>
+    <a asp-action="RealizarPago" class="btn btn-warning">Realizar Pago</a>
+    <a asp-action="VerCitas" class="btn btn-info text-white">Historial de Citas</a>
 </div>

@@ -13,6 +13,7 @@ namespace Proyecto_BD.Models
         [ForeignKey("ID_Venta")]
         public Ventas Venta { get; set; }
 
+        [Display(Name = "Tipo")]
         public bool Tipo_item { get; set; } //true = medicina, false = servicio
 
         [Display(Name = "Item")]

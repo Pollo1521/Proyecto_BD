@@ -14,6 +14,7 @@ namespace Proyecto_BD.Models
         public Cita Cita { get; set; }
 
         [Required]
+        [Display(Name = "Estado")]
         public bool Estado_Pago { get; set; }
 
         [Required]

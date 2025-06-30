@@ -6,6 +6,7 @@ namespace Proyecto_BD.Models
     public class Especialidad
     {
         [Key]
+        [Display(Name = "Especialidad")]
         public int ID_Especialidad { get; set; }
 
         [Required]

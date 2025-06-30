@@ -8,6 +8,7 @@ namespace Proyecto_BD.Models
 
         [Required]
         [EmailAddress]
+        [Display(Name = "Correo Electrónico")]
         public string CorreoElectronico { get; set; }
     }
 }

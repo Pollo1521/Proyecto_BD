@@ -4,14 +4,12 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
-
 <div>
     <h4>Recepcionista</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Usuario)
+            @Html.DisplayNameFor(model => model.Usuario.Nombre)
         </dt>
         <dd class = "col-sm-10">
             @(Model?.Usuario?.Nombre + " " + Model?.Usuario?.Apellido_Paterno + " " + Model?.Usuario?.Apellido_Materno)
@@ -43,11 +41,12 @@
     </dl>
 </div>
 <div>
-    <a asp-action="EditarDatos" asp-route-id="@Model?.ID_Recepcionista">Modificar Datos</a>
-    <a asp-action="EditarJornadas">Administrar Jornadas</a>
-    <a asp-action="EditarConsultorios">Administrar Consultorios</a>
-    <a asp-action="AdministrarFarmacia">Administrar Farmacia</a>
-    <a asp-action="AdministrarServicios">Administrar Servicios</a>
-    <a asp-action="AdministrarVentas">Administrar Venta</a>
-    <a asp-action="RegistrarEmpleado">Agregar Empleado</a>
+    <a asp-action="EditarDatos" asp-route-id="@Model?.ID_Recepcionista" class="btn btn-primary me-2">Modificar Datos</a>
+    <a asp-action="EditarJornadas" class="btn btn-secondary me-2">Administrar Jornadas</a>
+    <a asp-action="EditarConsultorios" class="btn btn-secondary me-2">Administrar Consultorios</a>
+    <a asp-action="AdministrarFarmacia" class="btn btn-info me-2">Administrar Farmacia</a>
+    <a asp-action="AdministrarServicios" class="btn btn-info me-2">Administrar Servicios</a>
+    <a asp-action="AdministrarVentas" class="btn btn-success me-2">Administrar Venta</a>
+    <a asp-action="RegistrarEmpleado" class="btn btn-dark">Agregar Empleado</a>
+
 </div>

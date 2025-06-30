@@ -13,6 +13,7 @@ namespace Proyecto_BD.Models
         [ForeignKey("ID_Usuario")]
         public Usuario Usuario { get; set; }
 
+        [Display(Name = "Jornada")]
         public int ID_Jornada { get; set; }
         [ForeignKey("ID_Jornada")]
         [Required]

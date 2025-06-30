@@ -263,5 +263,17 @@ namespace Proyecto_BD.Controllers
 
             return RedirectToAction(controllerName: "Medicos", actionName: "Index");
         }
+
+        public async Task<IActionResult> TratamientosReceta()
+        {
+            if (TempData["RecetaActual"] is not int idReceta)
+            {
+                return NotFound();
+            }
+            TempData.Keep("RecetaActual");
+
+            var contextoBaseDatos = _context.Tratamiento.Include(t => t.Receta).Where(t => t.ID_Receta == idReceta);
+            return View(await contextoBaseDatos.ToListAsync());
+        }
     }
 }

@@ -185,5 +185,17 @@ namespace Proyecto_BD.Controllers
         {
             return _context.Receta.Any(e => e.ID_Receta == id);
         }
+
+        public async Task<IActionResult> VerTratamientos(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            TempData["RecetaActual"] = id;
+            TempData.Keep("RecetaActual");
+            return RedirectToAction(controllerName: "Tratamientos", actionName: "TratamientosReceta");
+        }
     }
 }

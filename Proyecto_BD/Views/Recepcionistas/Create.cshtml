@@ -4,8 +4,6 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
 <h4>Recepcionista</h4>
 <hr />
 <div class="row">
@@ -20,14 +18,10 @@
                 <select asp-for="ID_Jornada" class ="form-control" asp-items="ViewBag.ID_Jornada"></select>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Guardar" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
